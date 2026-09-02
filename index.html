@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Análise Tributária & Simulador Crédito Vale</title>
-  <!-- PDF.js para leitura de relatórios de Situação Fiscal -->
+  
+  <!-- PDF.js para leitura de relatórios da Receita Federal -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  
+  <!-- html2pdf.js para exportar o relatório final em PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     :root {
       --bg-color: #f8fafc;
@@ -13,9 +18,7 @@
       --navy-primary: #0b132b;
       --navy-secondary: #1c2541;
       --accent-gold: #c5a059;
-      --accent-gold-hover: #b08d48;
       --text-dark: #1e293b;
-      --text-muted: #64748b;
       --border-color: #e2e8f0;
       --input-bg: #f1f5f9;
     }
@@ -145,7 +148,7 @@
       padding-bottom: 4px;
     }
 
-    button {
+    .btn-main {
       background: linear-gradient(135deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
       color: #ffffff;
       border: 2px solid var(--accent-gold);
@@ -161,10 +164,29 @@
       letter-spacing: 1px;
     }
 
-    button:hover {
+    .btn-main:hover {
       background: linear-gradient(135deg, var(--navy-secondary) 0%, var(--navy-primary) 100%);
       color: var(--accent-gold);
       box-shadow: 0 4px 12px rgba(11, 19, 43, 0.25);
+    }
+
+    .btn-pdf {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.3s;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    .btn-pdf:hover {
+      background: #059669;
     }
 
     .status-msg {
@@ -216,6 +238,14 @@
       background-color: rgba(16, 185, 129, 0.1);
       color: #047857;
       font-weight: bold;
+    }
+
+    .pdf-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
     }
 
     @media (max-width: 600px) {
@@ -301,8 +331,8 @@
     <h2>⚙️ 3. Parâmetros da Simulação de Crédito Vale</h2>
     <div class="grid">
       <div>
-        <label>Valor Total Devedor a Compensar (R$):</label>
-        <input type="text" id="valorCompensar" class="calculated-field currency-input" value="0,00" readonly>
+        <label>Valor Base para Compensação (R$):</label>
+        <input type="text" id="valorCompensar" class="calculated-field currency-input" value="0,00">
       </div>
       <div>
         <label>Compensação da Guia:</label>
@@ -323,37 +353,46 @@
       </div>
     </div>
 
-    <button onclick="gerarRelatorioESimulacao()">Calcular & Gerar Relatório</button>
+    <button class="btn-main" onclick="gerarRelatorioESimulacao()">Calcular & Gerar Relatório</button>
   </div>
 
   <!-- 4. RESULTADO E RELATÓRIO -->
-  <div id="resultado" class="section" style="display:none; margin-bottom:0;">
-    <h2>📋 4. Relatório de Elegibilidade</h2>
-    <p><strong>Empresa:</strong> <span id="resNome" style="color:var(--navy-primary); font-weight:bold;"></span></p>
-    <p><strong>Regime:</strong> <span id="resRegime"></span></p>
-    <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC"></span></p>
-    <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC"></span></p>
-    <p><strong>Média Mensal PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC"></span></p>
-    
-    <div id="badgeElegibilidade" class="badge"></div>
+  <div id="resultadoArea" style="display:none;">
+    <div id="relatorioImpressao" class="section">
+      <div class="pdf-meta">
+        <strong>Data de Emissão do Relatório:</strong> <span id="resDataEmissao"></span>
+      </div>
+      <h2>📋 4. Relatório de Elegibilidade</h2>
+      <p><strong>Empresa:</strong> <span id="resNome" style="color:var(--navy-primary); font-weight:bold;"></span></p>
+      <p><strong>Regime:</strong> <span id="resRegime"></span></p>
+      <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC"></span></p>
+      <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC"></span></p>
+      <p><strong>Média Mensal PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC"></span></p>
+      <p id="resNotaBase" style="font-size: 12px; color: var(--navy-secondary); font-style: italic;"></p>
+      
+      <div id="badgeElegibilidade" class="badge"></div>
 
-    <h2 style="margin-top: 35px;">💰 Simulação da Compra do Crédito Vale</h2>
-    <table>
-      <thead>
-        <tr><th>Item</th><th>Valor (R$)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Guia Original (Valor Devedor Selecionado)</td><td id="simGuiaOriginal"></td></tr>
-        <tr><td>Valor Compensado com Crédito Vale</td><td id="simValorCompensado"></td></tr>
-        <tr><td>Valor Guia Residual (10%)</td><td id="simGuiaResidual"></td></tr>
-        <tr><td>Custo de Aquisição do Crédito</td><td id="simCustoAquisicao"></td></tr>
-        <tr><td>Honorários</td><td id="simHonorarios"></td></tr>
-        <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td id="simCustoTotal"></td></tr>
-        <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td id="simEfetivoPago"></td></tr>
-        <tr class="highlight-row"><td>Economia Gerada (R$)</td><td id="simEconomiaR"></td></tr>
-        <tr class="highlight-row"><td>Percentual de Economia Gerada</td><td id="simEconomiaPct"></td></tr>
-      </tbody>
-    </table>
+      <h2 style="margin-top: 35px;">💰 Simulação da Compra do Crédito Vale</h2>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Valor (R$)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Valor Base Selecionado para Compensação</td><td id="simGuiaOriginal"></td></tr>
+          <tr><td>Valor Compensado com Crédito Vale</td><td id="simValorCompensado"></td></tr>
+          <tr><td>Valor Guia Residual (10%)</td><td id="simGuiaResidual"></td></tr>
+          <tr><td>Custo de Aquisição do Crédito</td><td id="simCustoAquisicao"></td></tr>
+          <tr><td>Honorários</td><td id="simHonorarios"></td></tr>
+          <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td id="simCustoTotal"></td></tr>
+          <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td id="simEfetivoPago"></td></tr>
+          <tr class="highlight-row"><td>Economia Gerada (R$)</td><td id="simEconomiaR"></td></tr>
+          <tr class="highlight-row"><td>Percentual de Economia Gerada</td><td id="simEconomiaPct"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Botão de Download PDF -->
+    <button class="btn-pdf" onclick="exportarPDF()">📥 Baixar Relatório em PDF</button>
   </div>
 </div>
 
@@ -416,7 +455,7 @@
         document.getElementById('nomeEmpresa').value = cnpjMatch[1].trim();
       }
 
-      // 2. Leitura Específica das Colunas 'Sdo. Dev. Cons.' por Tributo
+      // 2. Leitura Específica das Colunas por Tributo
       let debitoPC = 0;
       let debitoIC = 0;
 
@@ -425,7 +464,6 @@
 
       for (const match of matches) {
         const blocoTexto = match[0];
-        
         const isPC = blocoTexto.includes('PIS') || blocoTexto.includes('COFINS');
         const isIC = blocoTexto.includes('IRPJ') || blocoTexto.includes('CSLL');
 
@@ -461,7 +499,7 @@
     const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
     const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
 
-    // Mês 1, 2 e 3 (PIS + COFINS por mês)
+    // Mês 1, 2 e 3
     const m1 = parseMoeda(document.getElementById('pis1').value) + parseMoeda(document.getElementById('cofins1').value);
     const m2 = parseMoeda(document.getElementById('pis2').value) + parseMoeda(document.getElementById('cofins2').value);
     const m3 = parseMoeda(document.getElementById('pis3').value) + parseMoeda(document.getElementById('cofins3').value);
@@ -469,18 +507,36 @@
     const mediaPC = (m1 + m2 + m3) / 3;
     const totalDevedorGeral = debitoPC + debitoIC;
 
-    // Regras de Elegibilidade
-    const elegivel = (debitoPC > 10000) || 
-                     (mediaPC > 10000) || 
-                     (debitoIC > 10000) || 
-                     (totalDevedorGeral > 10000);
+    let baseParaCompensacao = parseMoeda(document.getElementById('valorCompensar').value);
+    let notaBaseText = "";
+
+    // Lógica quando NÃO HÁ saldo devedor na Receita Federal
+    if (totalDevedorGeral <= 0) {
+      if (mediaPC > 10000) {
+        baseParaCompensacao = mediaPC;
+        setMoedaInput('valorCompensar', mediaPC);
+        notaBaseText = "* Sem saldo devedor na Receita. Utilizada a média mensal de PIS/COFINS como base de cálculo.";
+      }
+    } else if (baseParaCompensacao <= 0) {
+      baseParaCompensacao = totalDevedorGeral;
+      setMoedaInput('valorCompensar', baseParaCompensacao);
+    }
+
+    // Regra de Elegibilidade Geral
+    const elegivel = (totalDevedorGeral > 10000) || (mediaPC > 10000);
+
+    // Data de Emissão Atual
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     // Preencher Relatório
+    document.getElementById('resDataEmissao').innerText = dataFormatada;
     document.getElementById('resNome').innerText = nome;
     document.getElementById('resRegime').innerText = regime;
     document.getElementById('resDebitoPC').innerText = fmt(debitoPC);
     document.getElementById('resDebitoIC').innerText = fmt(debitoIC);
     document.getElementById('resMediaPC').innerText = fmt(mediaPC);
+    document.getElementById('resNotaBase').innerText = notaBaseText;
 
     const badge = document.getElementById('badgeElegibilidade');
     if (elegivel) {
@@ -492,29 +548,23 @@
     }
 
     // --- CÁLCULOS DA SIMULAÇÃO ---
-    let valorDevedorCompensar = parseMoeda(document.getElementById('valorCompensar').value);
-    if (valorDevedorCompensar <= 0) {
-      valorDevedorCompensar = totalDevedorGeral;
-      setMoedaInput('valorCompensar', valorDevedorCompensar);
-    }
-
     const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
     const pctAquisicao = parseFloat(document.getElementById('pctAquisicao').value) / 100;
     const pctHonorarios = parseFloat(document.getElementById('pctHonorarios').value) / 100;
 
-    const valorCompensado = valorDevedorCompensar * (pctCompensacao / 100);
-    const guiaResidual = valorDevedorCompensar - valorCompensado;
+    const valorCompensado = baseParaCompensacao * (pctCompensacao / 100);
+    const guiaResidual = baseParaCompensacao - valorCompensado;
 
     const custoAquisicao = valorCompensado * pctAquisicao;
     const honorarios = valorCompensado * pctHonorarios;
     const custoTotal = custoAquisicao + honorarios;
 
     const valorEfetivoPago = custoTotal + guiaResidual;
-    const economiaR$ = valorDevedorCompensar - valorEfetivoPago;
-    const economiaPct = valorDevedorCompensar > 0 ? (economiaR$ / valorDevedorCompensar) * 100 : 0;
+    const economiaR$ = baseParaCompensacao - valorEfetivoPago;
+    const economiaPct = baseParaCompensacao > 0 ? (economiaR$ / baseParaCompensacao) * 100 : 0;
 
     // Preencher Tabela da Simulação
-    document.getElementById('simGuiaOriginal').innerText = fmt(valorDevedorCompensar);
+    document.getElementById('simGuiaOriginal').innerText = fmt(baseParaCompensacao);
     document.getElementById('simValorCompensado').innerText = fmt(valorCompensado);
     document.getElementById('simGuiaResidual').innerText = fmt(guiaResidual);
     document.getElementById('simCustoAquisicao').innerText = fmt(custoAquisicao);
@@ -524,7 +574,23 @@
     document.getElementById('simEconomiaR').innerText = fmt(economiaR$);
     document.getElementById('simEconomiaPct').innerText = economiaPct.toFixed(2) + '%';
 
-    document.getElementById('resultado').style.display = 'block';
+    document.getElementById('resultadoArea').style.display = 'block';
+  }
+
+  // --- FUNÇÃO PARA EXPORTAR PDF ---
+  function exportarPDF() {
+    const elemento = document.getElementById('relatorioImpressao');
+    const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
+    
+    const opt = {
+      margin:       10,
+      filename:     `Relatorio_Credito_Vale_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(elemento).save();
   }
 </script>
 
