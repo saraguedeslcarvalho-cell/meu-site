@@ -630,62 +630,35 @@
 
     document.getElementById('resultadoArea').style.display = 'block';
   }
+    function exportarPDF() {
+  // Elemento que contém todo o relatório exibido na tela
+  const elemento = document.getElementById('conteudoParaExportar');
+  const btn = document.getElementById('btnExportarPdf');
 
-    async function exportarPDF() {
-    const elemento = document.getElementById("conteudoParaExportar");
-    const btn = document.getElementById("btnExportarPdf");
+  // Esconde o botão temporariamente para não sair no PDF
+  if (btn) btn.style.display = 'none';
 
-    const nomeEmpresa =
-      document.getElementById("nomeEmpresa").value || "Empresa";
+  // Configurações otimizadas para exportação idêntica à imagem
+  const opt = {
+    margin:       [8, 8, 8, 8],
+    filename:     `Relatorio_PSP_Group_${(document.getElementById('resNome')?.innerText || 'Cliente').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { 
+      scale: 2,           // Alta resolução de imagem/texto
+      useCORS: true, 
+      logging: false,
+      scrollY: 0,
+      scrollX: 0
+    },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
-    btn.style.display = "none";
-    elemento.classList.add("pdf-layout-print");
-
-    // Espera o navegador renderizar antes da captura
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-
-    const opt = {
-      margin: [10, 10, 10, 10],
-
-      filename: `Relatorio_PSP_Group_${nomeEmpresa.replace(
-        /[^a-zA-Z0-9]/g,
-        "_"
-      )}.pdf`,
-
-      image: {
-        type: "jpeg",
-        quality: 1,
-      },
-
-      html2canvas: {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#FFFFFF",
-        scrollY: 0,
-        windowWidth: document.documentElement.scrollWidth,
-        windowHeight: document.documentElement.scrollHeight,
-        foreignObjectRendering: true,
-        logging: false,
-      },
-
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait",
-      },
-    };
-
-    try {
-      await html2pdf().set(opt).from(elemento).save();
-    } catch (erro) {
-      console.error("Erro ao gerar PDF:", erro);
-      alert("Erro ao gerar o PDF.");
-    } finally {
-      elemento.classList.remove("pdf-layout-print");
-      btn.style.display = "block";
-    }
-  }
-</script>
-
-</body>
-</html>
+  // Gera e faz o download do arquivo PDF
+  html2pdf().set(opt).from(elemento).save().then(() => {
+    // Exibe o botão novamente após o download
+    if (btn) btn.style.display = 'block';
+  }).catch(err => {
+    console.error('Erro ao gerar PDF:', err);
+    if (btn) btn.style.display = 'block';
+  });
+}
