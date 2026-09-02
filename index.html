@@ -458,32 +458,26 @@
 
       <div class="pdf-footer-exact">
         <div>PSP GROUP</div>
-           <div>Relatório de Elegibilidade — Documento Confidencial</div>
+        <div>Relatório de Elegibilidade — Documento Confidencial</div>
       </div>
     </div>
 
-    <button id="btnExportarPdf" class="btn-pdf" onclick="exportarPDF()">
-      📥 BAIXAR RELATÓRIO TÉCNICO PSP GROUP (PDF)
-    </button>
+    <button id="btnExportarPdf" class="btn-pdf" onclick="exportarPDF()">📥 BAIXAR RELATÓRIO TÉCNICO PSP GROUP (PDF)</button>
   </div>
 </div>
 
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
   function parseMoeda(str) {
     if (!str) return 0;
-    if (typeof str === "number") return str;
-    const limpo = str.replace(/[^\d]/g, "");
+    if (typeof str === 'number') return str;
+    const limpo = str.replace(/[^\d]/g, '');
     return parseFloat(limpo) / 100 || 0;
   }
 
   function fmt(val) {
-    return Number(val || 0).toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    return Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function mudarFormatoMoeda(input) {
@@ -493,151 +487,112 @@
 
   function setMoedaInput(elementId, valorNumerico) {
     const el = document.getElementById(elementId);
-    if (el) el.value = fmt(valorNumerico);
+    if (el) {
+      el.value = fmt(valorNumerico);
+    }
   }
 
   function atualizarTotalDevedor() {
-    const debitoPC = parseMoeda(document.getElementById("debitoPisCofins").value);
-    const debitoIC = parseMoeda(document.getElementById("debitoIrpjCsll").value);
+    const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
+    const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
     const total = debitoPC + debitoIC;
-    setMoedaInput("valorCompensar", total);
+    setMoedaInput('valorCompensar', total);
   }
 
   async function processarPDF(file) {
     if (!file) return;
-
-    const status = document.getElementById("pdfStatus");
+    const status = document.getElementById('pdfStatus');
     status.innerText = "Lendo e analisando o PDF...";
 
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
+      
       let fullText = "";
-
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        fullText += textContent.items.map((item) => item.str).join(" ") + "\n";
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        fullText += pageText + "\n";
       }
 
-      const cnpjMatch = fullText.match(
-        /CNPJ:\s*[\d.\/\-]+\s*-\s*([^\n\_\r]+)/i
-      );
-
+      const cnpjMatch = fullText.match(/CNPJ:\s*[\d.\/\-]+\s*-\s*([^\n\_\r]+)/i);
       if (cnpjMatch && cnpjMatch[1]) {
-        document.getElementById("nomeEmpresa").value = cnpjMatch[1].trim();
+        document.getElementById('nomeEmpresa').value = cnpjMatch[1].trim();
       }
 
       let debitoPC = 0;
       let debitoIC = 0;
 
-      const regexLinhaTributo =
-        /(8109-02\s*-\s*PIS|2172-01\s*-\s*COFINS|2089-01\s*-\s*IRPJ|2372-01\s*-\s*CSLL)[\s\S]*?(DEVEDOR|A ANALISAR)/gi;
-
+      const regexLinhaTributo = /(8109-02\s*-\s*PIS|2172-01\s*-\s*COFINS|2089-01\s*-\s*IRPJ|2372-01\s*-\s*CSLL)[\s\S]*?(DEVEDOR|A ANALISAR)/gi;
       const matches = fullText.matchAll(regexLinhaTributo);
 
       for (const match of matches) {
         const blocoTexto = match[0];
-
-        const isPC =
-          blocoTexto.includes("PIS") || blocoTexto.includes("COFINS");
-        const isIC =
-          blocoTexto.includes("IRPJ") || blocoTexto.includes("CSLL");
+        const isPC = blocoTexto.includes('PIS') || blocoTexto.includes('COFINS');
+        const isIC = blocoTexto.includes('IRPJ') || blocoTexto.includes('CSLL');
 
         const valoresEncontrados = blocoTexto.match(/[\d\.]{1,12}\,\d{2}/g);
 
         if (valoresEncontrados && valoresEncontrados.length >= 4) {
-          const valor = parseFloat(
-            valoresEncontrados[valoresEncontrados.length - 1]
-              .replace(/\./g, "")
-              .replace(",", ".")
-          );
+          const valConsolidadoStr = valoresEncontrados[valoresEncontrados.length - 1]; 
+          const valNum = parseFloat(valConsolidadoStr.replace(/\./g, '').replace(',', '.'));
 
-          if (!isNaN(valor)) {
-            if (isPC) debitoPC += valor;
-            if (isIC) debitoIC += valor;
+          if (!isNaN(valNum)) {
+            if (isPC) debitoPC += valNum;
+            if (isIC) debitoIC += valNum;
           }
         }
       }
 
-      setMoedaInput("debitoPisCofins", debitoPC);
-      setMoedaInput("debitoIrpjCsll", debitoIC);
+      setMoedaInput('debitoPisCofins', debitoPC);
+      setMoedaInput('debitoIrpjCsll', debitoIC);
+      
       atualizarTotalDevedor();
 
-      status.innerText =
-        "✅ PDF importado! PIS/COFINS: R$ " +
-        fmt(debitoPC) +
-        " | IRPJ/CSLL: R$ " +
-        fmt(debitoIC);
-    } catch (e) {
-      console.error(e);
-      status.innerText =
-        "❌ Erro ao ler o PDF. Verifique se é um PDF válido da Receita.";
+      status.innerText = `✅ PDF importado! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
+    } catch (err) {
+      console.error(err);
+      status.innerText = "❌ Erro ao ler o PDF. Verifique se o arquivo é um PDF válido da Receita Federal.";
     }
   }
 
   function gerarRelatorioESimulacao() {
-    const nome =
-      document.getElementById("nomeEmpresa").value || "Não informado";
+    const nome = document.getElementById('nomeEmpresa').value || 'Não informado';
+    const regime = document.getElementById('regime').value;
+    const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
+    const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
 
-    const regime = document.getElementById("regime").value;
-
-    const debitoPC = parseMoeda(
-      document.getElementById("debitoPisCofins").value
-    );
-
-    const debitoIC = parseMoeda(
-      document.getElementById("debitoIrpjCsll").value
-    );
-
-    const m1 =
-      parseMoeda(document.getElementById("pis1").value) +
-      parseMoeda(document.getElementById("cofins1").value);
-
-    const m2 =
-      parseMoeda(document.getElementById("pis2").value) +
-      parseMoeda(document.getElementById("cofins2").value);
-
-    const m3 =
-      parseMoeda(document.getElementById("pis3").value) +
-      parseMoeda(document.getElementById("cofins3").value);
+    const m1 = parseMoeda(document.getElementById('pis1').value) + parseMoeda(document.getElementById('cofins1').value);
+    const m2 = parseMoeda(document.getElementById('pis2').value) + parseMoeda(document.getElementById('cofins2').value);
+    const m3 = parseMoeda(document.getElementById('pis3').value) + parseMoeda(document.getElementById('cofins3').value);
 
     const mediaPC = (m1 + m2 + m3) / 3;
     const totalDevedorGeral = debitoPC + debitoIC;
 
-    let baseParaCompensacao = parseMoeda(
-      document.getElementById("valorCompensar").value
-    );
+    let baseParaCompensacao = parseMoeda(document.getElementById('valorCompensar').value);
 
     if (totalDevedorGeral <= 0 && mediaPC > 10000) {
       baseParaCompensacao = mediaPC;
-      setMoedaInput("valorCompensar", mediaPC);
+      setMoedaInput('valorCompensar', mediaPC);
     } else if (baseParaCompensacao <= 0) {
       baseParaCompensacao = totalDevedorGeral;
-      setMoedaInput("valorCompensar", baseParaCompensacao);
+      setMoedaInput('valorCompensar', baseParaCompensacao);
     }
 
-    const elegivel =
-      totalDevedorGeral > 10000 || mediaPC > 10000;
+    const elegivel = (totalDevedorGeral > 10000) || (mediaPC > 10000);
 
     const agora = new Date();
-    document.getElementById("resDataEmissao").innerText =
-      agora.toLocaleDateString("pt-BR") +
-      " às " +
-      agora.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    document.getElementById("resNome").innerText = nome;
-    document.getElementById("resRegime").innerText = regime;
-    document.getElementById("resDebitoPC").innerText = fmt(debitoPC);
-    document.getElementById("resDebitoIC").innerText = fmt(debitoIC);
-    document.getElementById("resMediaPC").innerText = fmt(mediaPC);
+    document.getElementById('resDataEmissao').innerText = dataFormatada;
+    document.getElementById('resNome').innerText = nome;
+    document.getElementById('resRegime').innerText = regime;
+    document.getElementById('resDebitoPC').innerText = fmt(debitoPC);
+    document.getElementById('resDebitoIC').innerText = fmt(debitoIC);
+    document.getElementById('resMediaPC').innerText = fmt(mediaPC);
 
-    const badge = document.getElementById("badgeElegibilidade");
-
+    const badge = document.getElementById('badgeElegibilidade');
     if (elegivel) {
       badge.innerText = "ELEGÍVEL PARA O CRÉDITO VALE";
       badge.className = "badge elegivel";
@@ -646,125 +601,91 @@
       badge.className = "badge nao-elegivel";
     }
 
-    const pctCompensacao = parseFloat(
-      document.getElementById("percentualCompensacao").value
-    );
+    // Cálculos da simulação
+    const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
+    const pctAquisicao = parseFloat(document.getElementById('pctAquisicao').value) / 100;
+    const pctHonorarios = parseFloat(document.getElementById('pctHonorarios').value) / 100;
 
-    const pctAquisicao =
-      parseFloat(document.getElementById("pctAquisicao").value) / 100;
+    const valorCompensado = baseParaCompensacao * (pctCompensacao / 100);
+    const guiaResidual = baseParaCompensacao - valorCompensado;
 
-    const pctHonorarios =
-      parseFloat(document.getElementById("pctHonorarios").value) / 100;
+    const custoAquisicao = valorCompensado * pctAquisicao;
+    const honorarios = valorCompensado * pctHonorarios;
+    const custoTotal = custoAquisicao + honorarios;
 
-    const valorCompensado =
-      baseParaCompensacao * (pctCompensacao / 100);
+    const valorEfetivoPago = custoTotal + guiaResidual;
+    const economiaR$ = baseParaCompensacao - valorEfetivoPago;
+    const economiaPct = baseParaCompensacao > 0 ? (economiaR$ / baseParaCompensacao) * 100 : 0;
 
-    const guiaResidual =
-      baseParaCompensacao - valorCompensado;
+    // Preenche a tabela
+    document.getElementById('simGuiaOriginal').innerText = fmt(baseParaCompensacao);
+    document.getElementById('simValorCompensado').innerText = fmt(valorCompensado);
+    document.getElementById('simGuiaResidual').innerText = fmt(guiaResidual);
+    document.getElementById('simCustoAquisicao').innerText = fmt(custoAquisicao);
+    document.getElementById('simHonorarios').innerText = fmt(honorarios);
+    document.getElementById('simCustoTotal').innerText = fmt(custoTotal);
+    document.getElementById('simEfetivoPago').innerText = fmt(valorEfetivoPago);
+    document.getElementById('simEconomiaR').innerText = fmt(economiaR$);
+    document.getElementById('simEconomiaPct').innerText = economiaPct.toFixed(2) + '%';
 
-    const custoAquisicao =
-      valorCompensado * pctAquisicao;
-
-    const honorarios =
-      valorCompensado * pctHonorarios;
-
-    const custoTotal =
-      custoAquisicao + honorarios;
-
-    const valorEfetivoPago =
-      custoTotal + guiaResidual;
-
-    // Corrigido
-    const economiaReais =
-      baseParaCompensacao - valorEfetivoPago;
-
-    const economiaPct =
-      baseParaCompensacao > 0
-        ? (economiaReais / baseParaCompensacao) * 100
-        : 0;
-
-    document.getElementById("simGuiaOriginal").innerText =
-      fmt(baseParaCompensacao);
-
-    document.getElementById("simValorCompensado").innerText =
-      fmt(valorCompensado);
-
-    document.getElementById("simGuiaResidual").innerText =
-      fmt(guiaResidual);
-
-    document.getElementById("simCustoAquisicao").innerText =
-      fmt(custoAquisicao);
-
-    document.getElementById("simHonorarios").innerText =
-      fmt(honorarios);
-
-    document.getElementById("simCustoTotal").innerText =
-      fmt(custoTotal);
-
-    document.getElementById("simEfetivoPago").innerText =
-      fmt(valorEfetivoPago);
-
-    document.getElementById("simEconomiaR").innerText =
-      fmt(economiaReais);
-
-    document.getElementById("simEconomiaPct").innerText =
-      economiaPct.toFixed(2) + "%";
-
-    document.getElementById("resultadoArea").style.display = "block";
+    document.getElementById('resultadoArea').style.display = 'block';
   }
 
-async function exportarPDF() {
-  const elemento = document.getElementById("conteudoParaExportar");
-  const botao = document.getElementById("btnExportarPdf");
-  const nomeEmpresa =
-    document.getElementById("nomeEmpresa").value || "Empresa";
+    async function exportarPDF() {
+    const elemento = document.getElementById("conteudoParaExportar");
+    const btn = document.getElementById("btnExportarPdf");
 
-  botao.style.display = "none";
-  elemento.classList.add("pdf-layout-print");
+    const nomeEmpresa =
+      document.getElementById("nomeEmpresa").value || "Empresa";
 
-  // Espera renderizar
-  await new Promise(resolve => setTimeout(resolve, 300));
+    btn.style.display = "none";
+    elemento.classList.add("pdf-layout-print");
 
-  try {
-    const canvas = await html2canvas(elemento, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#FFFFFF",
-      logging: false
-    });
+    // Espera o navegador renderizar antes da captura
+    await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+    const opt = {
+      margin: [10, 10, 10, 10],
 
-    const pdf = new jspdf.jsPDF("p", "mm", "a4");
+      filename: `Relatorio_PSP_Group_${nomeEmpresa.replace(
+        /[^a-zA-Z0-9]/g,
+        "_"
+      )}.pdf`,
 
-    const larguraPDF = 210;
-    const alturaPDF = 297;
+      image: {
+        type: "jpeg",
+        quality: 1,
+      },
 
-    const larguraImg = larguraPDF;
-    const alturaImg = (canvas.height * larguraImg) / canvas.width;
+      html2canvas: {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#FFFFFF",
+        scrollY: 0,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight,
+        foreignObjectRendering: true,
+        logging: false,
+      },
 
-    let alturaRestante = alturaImg;
-    let posicao = 0;
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+    };
 
-    pdf.addImage(imgData, "JPEG", 0, posicao, larguraImg, alturaImg);
-    alturaRestante -= alturaPDF;
-
-    while (alturaRestante > 0) {
-      posicao = alturaRestante - alturaImg;
-      pdf.addPage();
-      pdf.addImage(imgData, "JPEG", 0, posicao, larguraImg, alturaImg);
-      alturaRestante -= alturaPDF;
+    try {
+      await html2pdf().set(opt).from(elemento).save();
+    } catch (erro) {
+      console.error("Erro ao gerar PDF:", erro);
+      alert("Erro ao gerar o PDF.");
+    } finally {
+      elemento.classList.remove("pdf-layout-print");
+      btn.style.display = "block";
     }
-
-    pdf.save(
-      `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`
-    );
-
-  } catch (erro) {
-    console.error("Erro ao gerar PDF:", erro);
-    alert("Erro ao gerar PDF.");
-  } finally {
-    elemento.classList.remove("pdf-layout-print");
-    botao.style.display = "block";
   }
-}
+</script>
+
+</body>
+</html>
