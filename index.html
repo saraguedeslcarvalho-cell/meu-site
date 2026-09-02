@@ -6,10 +6,10 @@
   <title>Análise Tributária & Simulador Crédito Vale</title>
   
   <!-- PDF.js para leitura de relatórios da Receita Federal -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js">
   
   <!-- html2pdf.js para exportar o relatório final em PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
@@ -632,101 +632,46 @@
   }
 
 function exportarPDF() {
-  const elemento = document.getElementById('conteudoParaExportar');
-  const btn = document.getElementById('btnExportarPdf');
-  const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
+    const elemento = document.getElementById("conteudoParaExportar");
+    const btn = document.getElementById("btnExportarPdf");
 
-  // Oculta botão
-  btn.style.display = 'none';
+    btn.style.display = "none";
+    elemento.classList.add("pdf-layout-print");
 
-  // Aplica layout de impressão
-  elemento.classList.add('pdf-layout-print');
+    const opt = {
+        margin: 10,
+        filename: "relatorio.pdf",
+        image: {
+            type: "jpeg",
+            quality: 1
+        },
+        html2canvas: {
+            scale: 3,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: elemento.scrollWidth,
+            windowHeight: elemento.scrollHeight
+        },
+        jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait"
+        }
+    };
 
-  // Força renderização completa
-  elemento.style.height = 'auto';
-  elemento.style.maxHeight = 'none';
-  elemento.style.overflow = 'visible';
+    setTimeout(() => {
 
-  const opt = {
-    margin: [8, 8, 8, 8],
+        html2pdf()
+            .from(elemento)
+            .set(opt)
+            .save()
+            .then(() => {
 
-    filename: `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+                elemento.classList.remove("pdf-layout-print");
+                btn.style.display = "block";
 
-    image: {
-      type: 'jpeg',
-      quality: 1
-    },
+            });
 
-    html2canvas: {
-      scale: 3,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-
-      scrollX: 0,
-      scrollY: 0,
-
-      windowWidth: elemento.scrollWidth,
-      windowHeight: elemento.scrollHeight,
-
-      foreignObjectRendering: true,
-      letterRendering: true
-    },
-
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    },
-
-    pagebreak: {
-      mode: ['css', 'legacy']
-    }
-  };
-
-  setTimeout(() => {
-
-    html2pdf()
-      .from(elemento)
-      .set(opt)
-      .save()
-      .then(() => {
-
-        elemento.classList.remove('pdf-layout-print');
-        elemento.style.height = '';
-        elemento.style.maxHeight = '';
-        elemento.style.overflow = '';
-
-        btn.style.display = 'block';
-
-      })
-      .catch((err) => {
-
-        console.error('Erro ao gerar PDF:', err);
-
-        elemento.classList.remove('pdf-layout-print');
-        elemento.style.height = '';
-        elemento.style.maxHeight = '';
-        elemento.style.overflow = '';
-
-        btn.style.display = 'block';
-      });
-
-  }, 500);
+    }, 300);
 }
-  #conteudoParaExportar {
-  background: #ffffff !important;
-}
-
-#conteudoParaExportar table {
-  page-break-inside: avoid;
-}
-
-#conteudoParaExportar tr {
-  page-break-inside: avoid;
-}
-
-#conteudoParaExportar h2 {
-  page-break-after: avoid;
-}
-
