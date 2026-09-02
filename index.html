@@ -112,7 +112,6 @@
       box-shadow: 0 0 5px rgba(11, 19, 43, 0.2);
     }
 
-    /* Estilo para campo calculado desabilitado/destacado */
     input.calculated-field {
       background-color: #e2e8f0;
       font-weight: bold;
@@ -129,6 +128,21 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 15px;
+    }
+
+    .mes-block {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mes-block h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: var(--navy-primary);
+      border-bottom: 1px solid var(--accent-gold);
+      padding-bottom: 4px;
     }
 
     button {
@@ -242,30 +256,42 @@
     <div class="grid" style="margin-top: 10px;">
       <div>
         <label>Débito PIS/COFINS Extraído (R$):</label>
-        <input type="number" id="debitoPisCofins" value="0" step="0.01" oninput="atualizarTotalDevedor()">
+        <input type="text" id="debitoPisCofins" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
       </div>
       <div>
         <label>Débito IRPJ/CSLL Extraído (R$):</label>
-        <input type="number" id="debitoIrpjCsll" value="0" step="0.01" oninput="atualizarTotalDevedor()">
+        <input type="text" id="debitoIrpjCsll" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
       </div>
     </div>
   </div>
 
-  <!-- 2. PIS E COFINS ÚLTIMOS 3 MESES -->
+  <!-- 2. PIS E COFINS SEPARADOS POR MÊS -->
   <div class="section">
     <h2>📊 2. PIS e COFINS dos Últimos 3 Meses</h2>
     <div class="grid-3">
-      <div>
-        <label>Mês 1 (R$):</label>
-        <input type="number" id="pis1" value="0" step="0.01">
+      <!-- Mês 1 -->
+      <div class="mes-block">
+        <h3>Mês 1</h3>
+        <label>PIS (R$):</label>
+        <input type="text" id="pis1" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <label>COFINS (R$):</label>
+        <input type="text" id="cofins1" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
-      <div>
-        <label>Mês 2 (R$):</label>
-        <input type="number" id="pis2" value="0" step="0.01">
+      <!-- Mês 2 -->
+      <div class="mes-block">
+        <h3>Mês 2</h3>
+        <label>PIS (R$):</label>
+        <input type="text" id="pis2" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <label>COFINS (R$):</label>
+        <input type="text" id="cofins2" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
-      <div>
-        <label>Mês 3 (R$):</label>
-        <input type="number" id="pis3" value="0" step="0.01">
+      <!-- Mês 3 -->
+      <div class="mes-block">
+        <h3>Mês 3</h3>
+        <label>PIS (R$):</label>
+        <input type="text" id="pis3" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <label>COFINS (R$):</label>
+        <input type="text" id="cofins3" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
     </div>
   </div>
@@ -276,7 +302,7 @@
     <div class="grid">
       <div>
         <label>Valor Total Devedor a Compensar (R$):</label>
-        <input type="number" id="valorCompensar" value="0" step="0.01" class="calculated-field" readonly>
+        <input type="text" id="valorCompensar" class="calculated-field currency-input" value="0,00" readonly>
       </div>
       <div>
         <label>Compensação da Guia:</label>
@@ -307,7 +333,7 @@
     <p><strong>Regime:</strong> <span id="resRegime"></span></p>
     <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC"></span></p>
     <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC"></span></p>
-    <p><strong>Média PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC"></span></p>
+    <p><strong>Média Mensal PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC"></span></p>
     
     <div id="badgeElegibilidade" class="badge"></div>
 
@@ -334,16 +360,36 @@
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
+  // --- FORMATAÇÃO MONETÁRIA BRASILEIRA EM TEMPO REAL ---
+  function parseMoeda(str) {
+    if (!str) return 0;
+    if (typeof str === 'number') return str;
+    const limpo = str.replace(/[^\d]/g, '');
+    return parseFloat(limpo) / 100 || 0;
+  }
+
   function fmt(val) {
     return Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // Atualiza automaticamente o Valor Total Devedor a Compensar com a soma dos débitos
+  function mudarFormatoMoeda(input) {
+    let val = parseMoeda(input.value);
+    input.value = fmt(val);
+  }
+
+  function setMoedaInput(elementId, valorNumerico) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.value = fmt(valorNumerico);
+    }
+  }
+
+  // --- ATUALIZAÇÃO AUTOMÁTICA DOS TOTAIS ---
   function atualizarTotalDevedor() {
-    const debitoPC = parseFloat(document.getElementById('debitoPisCofins').value) || 0;
-    const debitoIC = parseFloat(document.getElementById('debitoIrpjCsll').value) || 0;
+    const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
+    const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
     const total = debitoPC + debitoIC;
-    document.getElementById('valorCompensar').value = total.toFixed(2);
+    setMoedaInput('valorCompensar', total);
   }
 
   // --- LEITURA DO PDF DA SITUAÇÃO FISCAL ---
@@ -396,10 +442,9 @@
         }
       }
 
-      document.getElementById('debitoPisCofins').value = debitoPC.toFixed(2);
-      document.getElementById('debitoIrpjCsll').value = debitoIC.toFixed(2);
+      setMoedaInput('debitoPisCofins', debitoPC);
+      setMoedaInput('debitoIrpjCsll', debitoIC);
       
-      // Atualiza a soma automaticamente
       atualizarTotalDevedor();
 
       status.innerText = `✅ PDF importado! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
@@ -413,17 +458,18 @@
   function gerarRelatorioESimulacao() {
     const nome = document.getElementById('nomeEmpresa').value || 'Não informado';
     const regime = document.getElementById('regime').value;
-    const debitoPC = parseFloat(document.getElementById('debitoPisCofins').value) || 0;
-    const debitoIC = parseFloat(document.getElementById('debitoIrpjCsll').value) || 0;
+    const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
+    const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
 
-    const pis1 = parseFloat(document.getElementById('pis1').value) || 0;
-    const pis2 = parseFloat(document.getElementById('pis2').value) || 0;
-    const pis3 = parseFloat(document.getElementById('pis3').value) || 0;
+    // Mês 1, 2 e 3 (PIS + COFINS por mês)
+    const m1 = parseMoeda(document.getElementById('pis1').value) + parseMoeda(document.getElementById('cofins1').value);
+    const m2 = parseMoeda(document.getElementById('pis2').value) + parseMoeda(document.getElementById('cofins2').value);
+    const m3 = parseMoeda(document.getElementById('pis3').value) + parseMoeda(document.getElementById('cofins3').value);
 
-    const mediaPC = (pis1 + pis2 + pis3) / 3;
+    const mediaPC = (m1 + m2 + m3) / 3;
     const totalDevedorGeral = debitoPC + debitoIC;
 
-    // Regras de Elegibilidade (Não cumulativas)
+    // Regras de Elegibilidade
     const elegivel = (debitoPC > 10000) || 
                      (mediaPC > 10000) || 
                      (debitoIC > 10000) || 
@@ -446,10 +492,10 @@
     }
 
     // --- CÁLCULOS DA SIMULAÇÃO ---
-    let valorDevedorCompensar = parseFloat(document.getElementById('valorCompensar').value);
-    if (isNaN(valorDevedorCompensar) || valorDevedorCompensar <= 0) {
+    let valorDevedorCompensar = parseMoeda(document.getElementById('valorCompensar').value);
+    if (valorDevedorCompensar <= 0) {
       valorDevedorCompensar = totalDevedorGeral;
-      document.getElementById('valorCompensar').value = valorDevedorCompensar.toFixed(2);
+      setMoedaInput('valorCompensar', valorDevedorCompensar);
     }
 
     const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
