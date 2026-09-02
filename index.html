@@ -8,21 +8,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     :root {
-      --bg-color: #0b132b;
-      --card-bg: #1c2541;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --navy-primary: #0b132b;
+      --navy-secondary: #1c2541;
       --accent-gold: #c5a059;
-      --accent-gold-hover: #e0b868;
-      --text-light: #f4f6f9;
-      --text-muted: #a0aec0;
-      --border-color: #2a3a5e;
-      --input-bg: #0f172a;
+      --accent-gold-hover: #b08d48;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --input-bg: #f1f5f9;
     }
 
     * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-color);
-      color: var(--text-light);
+      color: var(--text-dark);
       margin: 0;
       padding: 30px 15px;
     }
@@ -33,13 +35,13 @@
       background: var(--card-bg);
       padding: 35px;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid var(--accent-gold);
+      box-shadow: 0 10px 25px rgba(11, 19, 43, 0.08);
+      border: 2px solid var(--navy-primary);
     }
 
     h1 {
       text-align: center;
-      color: var(--accent-gold);
+      color: var(--navy-primary);
       margin-top: 0;
       margin-bottom: 25px;
       font-size: 26px;
@@ -50,7 +52,7 @@
     }
 
     h2 {
-      color: var(--accent-gold);
+      color: var(--navy-primary);
       font-size: 18px;
       margin-top: 0;
       margin-bottom: 15px;
@@ -60,10 +62,11 @@
     }
 
     .section {
-      background: rgba(15, 23, 42, 0.6);
+      background: #f8fafc;
       padding: 22px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-gold);
       margin-bottom: 25px;
     }
 
@@ -77,7 +80,7 @@
       transition: 0.3s;
     }
     .dropzone:hover {
-      background: rgba(197, 160, 89, 0.12);
+      background: rgba(197, 160, 89, 0.15);
     }
 
     label {
@@ -86,7 +89,7 @@
       margin-top: 12px;
       margin-bottom: 5px;
       font-size: 13px;
-      color: var(--text-muted);
+      color: var(--navy-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -97,15 +100,23 @@
       background-color: var(--input-bg);
       border: 1px solid var(--border-color);
       border-radius: 6px;
-      color: var(--text-light);
+      color: var(--text-dark);
       font-size: 15px;
       transition: 0.3s;
     }
 
     input[type="text"]:focus, input[type="number"]:focus, select:focus {
       outline: none;
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 5px rgba(197, 160, 89, 0.5);
+      border-color: var(--navy-primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 5px rgba(11, 19, 43, 0.2);
+    }
+
+    /* Estilo para campo calculado desabilitado/destacado */
+    input.calculated-field {
+      background-color: #e2e8f0;
+      font-weight: bold;
+      color: var(--navy-primary);
     }
 
     .grid {
@@ -121,9 +132,9 @@
     }
 
     button {
-      background: linear-gradient(135deg, #c5a059 0%, #9a7b38 100%);
-      color: #0b132b;
-      border: none;
+      background: linear-gradient(135deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
+      color: #ffffff;
+      border: 2px solid var(--accent-gold);
       padding: 14px 24px;
       border-radius: 6px;
       font-size: 16px;
@@ -137,14 +148,15 @@
     }
 
     button:hover {
-      background: linear-gradient(135deg, #e0b868 0%, #c5a059 100%);
-      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+      background: linear-gradient(135deg, var(--navy-secondary) 0%, var(--navy-primary) 100%);
+      color: var(--accent-gold);
+      box-shadow: 0 4px 12px rgba(11, 19, 43, 0.25);
     }
 
     .status-msg {
       margin-top: 10px;
       font-size: 13px;
-      color: var(--accent-gold);
+      color: var(--navy-primary);
       font-weight: bold;
     }
 
@@ -165,9 +177,10 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
-      background: var(--input-bg);
+      background: #ffffff;
       border-radius: 6px;
       overflow: hidden;
+      border: 1px solid var(--border-color);
     }
 
     th, td {
@@ -178,7 +191,7 @@
     }
 
     th {
-      background-color: rgba(197, 160, 89, 0.15);
+      background-color: var(--navy-primary);
       color: var(--accent-gold);
       text-transform: uppercase;
       font-size: 12px;
@@ -186,8 +199,8 @@
     }
 
     .highlight-row {
-      background-color: rgba(16, 185, 129, 0.15);
-      color: #34d399;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #047857;
       font-weight: bold;
     }
 
@@ -206,7 +219,7 @@
     <h2>📄 1. Importar Situação Fiscal (PDF da Receita)</h2>
     <div class="dropzone" onclick="document.getElementById('pdfInput').click()">
       <span style="font-size: 24px;">📁</span>
-      <p style="margin: 8px 0 0 0; color: var(--text-light);">Clique ou arraste aqui o PDF da Situação Fiscal</p>
+      <p style="margin: 8px 0 0 0; color: var(--navy-secondary);">Clique ou arraste aqui o PDF da Situação Fiscal</p>
       <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" onchange="processarPDF(this.files[0])">
     </div>
     <div id="pdfStatus" class="status-msg"></div>
@@ -229,11 +242,11 @@
     <div class="grid" style="margin-top: 10px;">
       <div>
         <label>Débito PIS/COFINS Extraído (R$):</label>
-        <input type="number" id="debitoPisCofins" value="0" step="0.01">
+        <input type="number" id="debitoPisCofins" value="0" step="0.01" oninput="atualizarTotalDevedor()">
       </div>
       <div>
         <label>Débito IRPJ/CSLL Extraído (R$):</label>
-        <input type="number" id="debitoIrpjCsll" value="0" step="0.01">
+        <input type="number" id="debitoIrpjCsll" value="0" step="0.01" oninput="atualizarTotalDevedor()">
       </div>
     </div>
   </div>
@@ -263,7 +276,7 @@
     <div class="grid">
       <div>
         <label>Valor Total Devedor a Compensar (R$):</label>
-        <input type="number" id="valorCompensar" value="0" step="0.01">
+        <input type="number" id="valorCompensar" value="0" step="0.01" class="calculated-field" readonly>
       </div>
       <div>
         <label>Compensação da Guia:</label>
@@ -290,7 +303,7 @@
   <!-- 4. RESULTADO E RELATÓRIO -->
   <div id="resultado" class="section" style="display:none; margin-bottom:0;">
     <h2>📋 4. Relatório de Elegibilidade</h2>
-    <p><strong>Empresa:</strong> <span id="resNome" style="color:var(--accent-gold)"></span></p>
+    <p><strong>Empresa:</strong> <span id="resNome" style="color:var(--navy-primary); font-weight:bold;"></span></p>
     <p><strong>Regime:</strong> <span id="resRegime"></span></p>
     <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC"></span></p>
     <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC"></span></p>
@@ -325,6 +338,14 @@
     return Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  // Atualiza automaticamente o Valor Total Devedor a Compensar com a soma dos débitos
+  function atualizarTotalDevedor() {
+    const debitoPC = parseFloat(document.getElementById('debitoPisCofins').value) || 0;
+    const debitoIC = parseFloat(document.getElementById('debitoIrpjCsll').value) || 0;
+    const total = debitoPC + debitoIC;
+    document.getElementById('valorCompensar').value = total.toFixed(2);
+  }
+
   // --- LEITURA DO PDF DA SITUAÇÃO FISCAL ---
   async function processarPDF(file) {
     if (!file) return;
@@ -343,50 +364,48 @@
         fullText += pageText + "\n";
       }
 
-      // 1. Extração do Nome da Empresa
+      // 1. Extração da Razão Social
       const cnpjMatch = fullText.match(/CNPJ:\s*[\d.\/\-]+\s*-\s*([^\n\_\r]+)/i);
       if (cnpjMatch && cnpjMatch[1]) {
         document.getElementById('nomeEmpresa').value = cnpjMatch[1].trim();
       }
 
-      // 2. Extração dos Débitos de PIS, COFINS, IRPJ e CSLL
+      // 2. Leitura Específica das Colunas 'Sdo. Dev. Cons.' por Tributo
       let debitoPC = 0;
       let debitoIC = 0;
 
-      // Expressão para pegar código + valor consolidado
-      const regexLinha = /(8109-02|2172-01|2089-01|2372-01)[^\n]*?(DEVEDOR|A ANALISAR)/gi;
-      const regexValores = /([\d\.]+\,\d{2})\s+(DEVEDOR|A ANALISAR)/gi;
+      const regexLinhaTributo = /(8109-02\s*-\s*PIS|2172-01\s*-\s*COFINS|2089-01\s*-\s*IRPJ|2372-01\s*-\s*CSLL)[\s\S]*?(DEVEDOR|A ANALISAR)/gi;
+      const matches = fullText.matchAll(regexLinhaTributo);
 
-      // Varredura por linhas de códigos tributários
-      const lines = fullText.split('\n');
-      lines.forEach(line => {
-        const isPIS = line.includes('8109-02');
-        const isCOFINS = line.includes('2172-01');
-        const isIRPJ = line.includes('2089-01');
-        const isCSLL = line.includes('2372-01');
+      for (const match of matches) {
+        const blocoTexto = match[0];
+        
+        const isPC = blocoTexto.includes('PIS') || blocoTexto.includes('COFINS');
+        const isIC = blocoTexto.includes('IRPJ') || blocoTexto.includes('CSLL');
 
-        if (isPIS || isCOFINS || isIRPJ || isCSLL) {
-          // Procura os números no formato de moeda brasileira
-          const matches = [...line.matchAll(/([\d\.]{1,10}\,\d{2})/g)];
-          if (matches.length > 0) {
-            // O valor dev. consolidado é geralmente o último valor numérico antes do status
-            const valStr = matches[matches.length - 1][1].replace(/\./g, '').replace(',', '.');
-            const valor = parseFloat(valStr) || 0;
+        const valoresEncontrados = blocoTexto.match(/[\d\.]{1,12}\,\d{2}/g);
 
-            if (isPIS || isCOFINS) debitoPC += valor;
-            if (isIRPJ || isCSLL) debitoIC += valor;
+        if (valoresEncontrados && valoresEncontrados.length >= 4) {
+          const valConsolidadoStr = valoresEncontrados[valoresEncontrados.length - 1]; 
+          const valNum = parseFloat(valConsolidadoStr.replace(/\./g, '').replace(',', '.'));
+
+          if (!isNaN(valNum)) {
+            if (isPC) debitoPC += valNum;
+            if (isIC) debitoIC += valNum;
           }
         }
-      });
+      }
 
       document.getElementById('debitoPisCofins').value = debitoPC.toFixed(2);
       document.getElementById('debitoIrpjCsll').value = debitoIC.toFixed(2);
-      document.getElementById('valorCompensar').value = (debitoPC + debitoIC).toFixed(2);
+      
+      // Atualiza a soma automaticamente
+      atualizarTotalDevedor();
 
-      status.innerText = "✅ PDF importado e lido com sucesso!";
+      status.innerText = `✅ PDF importado! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
     } catch (err) {
       console.error(err);
-      status.innerText = "❌ Erro ao ler o PDF. Certifique-se de que é um documento oficial da Receita Federal.";
+      status.innerText = "❌ Erro ao ler o PDF. Verifique se o arquivo é um PDF válido da Receita Federal.";
     }
   }
 
@@ -404,11 +423,7 @@
     const mediaPC = (pis1 + pis2 + pis3) / 3;
     const totalDevedorGeral = debitoPC + debitoIC;
 
-    // Regras de Elegibilidade (Não cumulativas):
-    // 1. Débito PIS/COFINS > 10.000
-    // 2. Média PIS/COFINS > 10.000
-    // 3. IRPJ/CSLL > 10.000
-    // 4. Saldo devedor somado (PIS + COFINS + IRPJ + CSLL) > 10.000
+    // Regras de Elegibilidade (Não cumulativas)
     const elegivel = (debitoPC > 10000) || 
                      (mediaPC > 10000) || 
                      (debitoIC > 10000) || 
@@ -437,7 +452,7 @@
       document.getElementById('valorCompensar').value = valorDevedorCompensar.toFixed(2);
     }
 
-    const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value); // 100 ou 90
+    const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
     const pctAquisicao = parseFloat(document.getElementById('pctAquisicao').value) / 100;
     const pctHonorarios = parseFloat(document.getElementById('pctHonorarios').value) / 100;
 
