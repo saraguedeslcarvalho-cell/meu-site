@@ -254,16 +254,24 @@
       .grid, .grid-3 { grid-template-columns: 1fr; }
     }
 
-    /* --- ESTILOS DO MODELO DE RELATÓRIO TÉCNICO EXCLUSIVO DO PDF --- */
+    /* --- ESTRUTURA OCULTA SEGURA PARA CAPTURA DO PDF --- */
+    #pdfContainerWrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 800px;
+      z-index: -9999;
+      opacity: 0;
+      pointer-events: none;
+    }
+
     #relatorioPdfInvisivel {
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
       width: 800px;
       background: #ffffff;
       font-family: 'Inter', sans-serif;
       color: #334155;
-      padding: 20px;
+      padding: 30px;
+      box-sizing: border-box;
     }
 
     .pdf-header {
@@ -531,9 +539,9 @@
     <button class="btn-main" onclick="gerarRelatorioESimulacao()">Calcular & Gerar Relatório</button>
   </div>
 
-  <!-- 4. RESULTADO NA TELA (LAYOUT ORIGINAL MANTIDO) -->
+  <!-- 4. RESULTADO NA TELA (SISTEMA WEB ORIGINAL) -->
   <div id="resultadoArea" style="display:none;">
-    <div id="relatorioImpressao" class="section">
+    <div class="section">
       <div class="pdf-meta">
         <strong>Data de Emissão do Relatório:</strong> <span id="resDataEmissao"></span>
       </div>
@@ -566,112 +574,114 @@
       </table>
     </div>
 
-    <button class="btn-pdf" onclick="exportarPDF()">📥 Baixar Relatório em PDF</button>
+    <button class="btn-pdf" onclick="exportarPDF()">📥 Baixar Relatório Técnico PSP Group (PDF)</button>
   </div>
 </div>
 
-<!-- ESTRUTURA EXCLUSIVA PARA MONTAGEM DO PDF TÉCNICO PSP GROUP -->
-<div id="relatorioPdfInvisivel">
-  <div class="pdf-header">
-    <div class="pdf-logo">PSP <span>GROUP</span></div>
-    <div class="pdf-meta-header">
-      <strong>PARECER TÉCNICO DE COMPENSAÇÃO</strong><br>
-      Protocolo: #PSP-2026-092<br>
-      Emissão: <span id="pdfDataEmissao"></span>
+<!-- CONTAINER INVISÍVEL EXCLUSIVO PARA O GERADOR DE PDF -->
+<div id="pdfContainerWrapper">
+  <div id="relatorioPdfInvisivel">
+    <div class="pdf-header">
+      <div class="pdf-logo">PSP <span>GROUP</span></div>
+      <div class="pdf-meta-header">
+        <strong>PARECER TÉCNICO DE COMPENSAÇÃO</strong><br>
+        Protocolo: #PSP-2026-092<br>
+        Emissão: <span id="pdfDataEmissao"></span>
+      </div>
     </div>
-  </div>
 
-  <div class="pdf-title-banner">
-    <span>Relatório de Elegibilidade Tributária</span>
-    <span class="pdf-status-badge" id="pdfBadgeStatus">ELEGÍVEL</span>
-  </div>
+    <div class="pdf-title-banner">
+      <span>Relatório de Elegibilidade Tributária</span>
+      <span class="pdf-status-badge" id="pdfBadgeStatus">ELEGÍVEL</span>
+    </div>
 
-  <div class="pdf-kpi-grid">
-    <div class="pdf-kpi-card">
-      <div class="pdf-kpi-label">Base para Compensação</div>
-      <div class="pdf-kpi-value" id="pdfKpiBase">R$ 0,00</div>
+    <div class="pdf-kpi-grid">
+      <div class="pdf-kpi-card">
+        <div class="pdf-kpi-label">Base para Compensação</div>
+        <div class="pdf-kpi-value" id="pdfKpiBase">R$ 0,00</div>
+      </div>
+      <div class="pdf-kpi-card">
+        <div class="pdf-kpi-label">Custo Efetivo Final</div>
+        <div class="pdf-kpi-value" id="pdfKpiCusto">R$ 0,00</div>
+      </div>
+      <div class="pdf-kpi-card highlight">
+        <div class="pdf-kpi-label">Economia Garantida</div>
+        <div class="pdf-kpi-value" id="pdfKpiEconomia">R$ 0,00</div>
+      </div>
     </div>
-    <div class="pdf-kpi-card">
-      <div class="pdf-kpi-label">Custo Efetivo Final</div>
-      <div class="pdf-kpi-value" id="pdfKpiCusto">R$ 0,00</div>
-    </div>
-    <div class="pdf-kpi-card highlight">
-      <div class="pdf-kpi-label">Economia Garantida</div>
-      <div class="pdf-kpi-value" id="pdfKpiEconomia">R$ 0,00</div>
-    </div>
-  </div>
 
-  <div class="pdf-section-title">1. Identificação do Contribuinte</div>
-  <div class="pdf-info-grid">
-    <div class="pdf-info-item">
-      <strong>Razão Social</strong>
-      <span id="pdfNome"></span>
+    <div class="pdf-section-title">1. Identificação do Contribuinte</div>
+    <div class="pdf-info-grid">
+      <div class="pdf-info-item">
+        <strong>Razão Social</strong>
+        <span id="pdfNome"></span>
+      </div>
+      <div class="pdf-info-item">
+        <strong>Regime Tributário</strong>
+        <span id="pdfRegime"></span>
+      </div>
+      <div class="pdf-info-item">
+        <strong>Débito PIS/COFINS (Receita Federal)</strong>
+        R$ <span id="pdfDebitoPC"></span>
+      </div>
+      <div class="pdf-info-item">
+        <strong>Débito IRPJ/CSLL (Receita Federal)</strong>
+        R$ <span id="pdfDebitoIC"></span>
+      </div>
     </div>
-    <div class="pdf-info-item">
-      <strong>Regime Tributário</strong>
-      <span id="pdfRegime"></span>
-    </div>
-    <div class="pdf-info-item">
-      <strong>Débito PIS/COFINS (Receita Federal)</strong>
-      R$ <span id="pdfDebitoPC"></span>
-    </div>
-    <div class="pdf-info-item">
-      <strong>Débito IRPJ/CSLL (Receita Federal)</strong>
-      R$ <span id="pdfDebitoIC"></span>
-    </div>
-  </div>
 
-  <div class="pdf-section-title">2. Demonstrativo da Operação com Crédito Vale</div>
-  <table class="pdf-tech-table">
-    <thead>
-      <tr>
-        <th>Etapa / Discriminativo da Operação</th>
-        <th style="text-align: right;">Valor (R$)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Valor Base Selecionado para Compensação</td>
-        <td style="text-align: right;" id="pdfSimGuiaOriginal"></td>
-      </tr>
-      <tr>
-        <td>Valor Compensado com Crédito Vale</td>
-        <td style="text-align: right;" id="pdfSimValorCompensado"></td>
-      </tr>
-      <tr>
-        <td>Valor Guia Residual</td>
-        <td style="text-align: right;" id="pdfSimGuiaResidual"></td>
-      </tr>
-      <tr>
-        <td>Custo de Aquisição do Crédito</td>
-        <td style="text-align: right;" id="pdfSimCustoAquisicao"></td>
-      </tr>
-      <tr>
-        <td>Honorários Operacionais</td>
-        <td style="text-align: right;" id="pdfSimHonorarios"></td>
-      </tr>
-      <tr class="pdf-row-total">
-        <td>Custo Total da Operação (Aquisição + Honorários)</td>
-        <td style="text-align: right;" id="pdfSimCustoTotal"></td>
-      </tr>
-      <tr class="pdf-row-total">
-        <td>Desembolso Efetivo Pago pelo Cliente</td>
-        <td style="text-align: right;" id="pdfSimEfetivoPago"></td>
-      </tr>
-      <tr class="row-highlight">
-        <td><strong>Economia Financeira Direta (R$)</strong></td>
-        <td style="text-align: right;"><strong id="pdfSimEconomiaR"></strong></td>
-      </tr>
-      <tr class="row-highlight">
-        <td><strong>Percentual Final de Economia (%)</strong></td>
-        <td style="text-align: right;"><strong id="pdfSimEconomiaPct"></strong></td>
-      </tr>
-    </tbody>
-  </table>
+    <div class="pdf-section-title">2. Demonstrativo da Operação com Crédito Vale</div>
+    <table class="pdf-tech-table">
+      <thead>
+        <tr>
+          <th>Etapa / Discriminativo da Operação</th>
+          <th style="text-align: right;">Valor (R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Valor Base Selecionado para Compensação</td>
+          <td style="text-align: right;" id="pdfSimGuiaOriginal"></td>
+        </tr>
+        <tr>
+          <td>Valor Compensado com Crédito Vale</td>
+          <td style="text-align: right;" id="pdfSimValorCompensado"></td>
+        </tr>
+        <tr>
+          <td>Valor Guia Residual</td>
+          <td style="text-align: right;" id="pdfSimGuiaResidual"></td>
+        </tr>
+        <tr>
+          <td>Custo de Aquisição do Crédito</td>
+          <td style="text-align: right;" id="pdfSimCustoAquisicao"></td>
+        </tr>
+        <tr>
+          <td>Honorários Operacionais</td>
+          <td style="text-align: right;" id="pdfSimHonorarios"></td>
+        </tr>
+        <tr class="pdf-row-total">
+          <td>Custo Total da Operação (Aquisição + Honorários)</td>
+          <td style="text-align: right;" id="pdfSimCustoTotal"></td>
+        </tr>
+        <tr class="pdf-row-total">
+          <td>Desembolso Efetivo Pago pelo Cliente</td>
+          <td style="text-align: right;" id="pdfSimEfetivoPago"></td>
+        </tr>
+        <tr class="row-highlight">
+          <td><strong>Economia Financeira Direta (R$)</strong></td>
+          <td style="text-align: right;"><strong id="pdfSimEconomiaR"></strong></td>
+        </tr>
+        <tr class="row-highlight">
+          <td><strong>Percentual Final de Economia (%)</strong></td>
+          <td style="text-align: right;"><strong id="pdfSimEconomiaPct"></strong></td>
+        </tr>
+      </tbody>
+    </table>
 
-  <div class="pdf-footer">
-    <div>PSP Group - Consultoria Tributária & Estratégia Financeira</div>
-    <div>Documento de uso estritamente confidencial</div>
+    <div class="pdf-footer">
+      <div>PSP Group - Consultoria Tributária & Estratégia Financeira</div>
+      <div>Documento de uso estritamente confidencial</div>
+    </div>
   </div>
 </div>
 
@@ -832,7 +842,7 @@
     const economiaR$ = baseParaCompensacao - valorEfetivoPago;
     const economiaPct = baseParaCompensacao > 0 ? (economiaR$ / baseParaCompensacao) * 100 : 0;
 
-    // Preenche Tabela na Tela
+    // Preenche Tabela da Tela
     document.getElementById('simGuiaOriginal').innerText = fmt(baseParaCompensacao);
     document.getElementById('simValorCompensado').innerText = fmt(valorCompensado);
     document.getElementById('simGuiaResidual').innerText = fmt(guiaResidual);
@@ -843,7 +853,7 @@
     document.getElementById('simEconomiaR').innerText = fmt(economiaR$);
     document.getElementById('simEconomiaPct').innerText = economiaPct.toFixed(2) + '%';
 
-    // Preenche Modelo do PDF Técnico Oculto
+    // Preenche Modelo do PDF Técnico
     document.getElementById('pdfDataEmissao').innerText = dataFormatada;
     document.getElementById('pdfBadgeStatus').innerText = elegivel ? "ELEGÍVEL" : "NÃO ELEGÍVEL";
     document.getElementById('pdfBadgeStatus').style.backgroundColor = elegivel ? "#22c55e" : "#ef4444";
@@ -870,11 +880,19 @@
   }
 
   function exportarPDF() {
+    // Garante que os dados estejam atualizados no elemento do PDF
+    gerarRelatorioESimulacao();
+
+    const wrapper = document.getElementById('pdfContainerWrapper');
     const elemento = document.getElementById('relatorioPdfInvisivel');
     const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
 
+    // Torna visível temporariamente para a captura de tela do html2canvas
+    wrapper.style.opacity = '1';
+    wrapper.style.zIndex = '9999';
+
     const opt = {
-      margin:       [10, 10, 10, 10],
+      margin:       [8, 8, 8, 8],
       filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
@@ -886,7 +904,11 @@
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(elemento).save();
+    html2pdf().set(opt).from(elemento).save().then(() => {
+      // Reverte a visibilidade após a geração do arquivo
+      wrapper.style.opacity = '0';
+      wrapper.style.zIndex = '-9999';
+    });
   }
 </script>
 
