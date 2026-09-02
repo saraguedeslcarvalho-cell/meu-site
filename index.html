@@ -6,13 +6,13 @@
   <title>Análise Tributária & Simulador Crédito Vale</title>
   
   <!-- PDF.js para leitura de relatórios da Receita Federal -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js">
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
   <!-- html2pdf.js para exportar o relatório final em PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
 
     :root {
       --bg-color: #f8fafc;
@@ -50,7 +50,6 @@
       margin-top: 0;
       margin-bottom: 25px;
       font-size: 26px;
-      letter-spacing: 0.5px;
       border-bottom: 2px solid var(--accent-gold);
       padding-bottom: 15px;
       text-transform: uppercase;
@@ -61,9 +60,6 @@
       font-size: 18px;
       margin-top: 0;
       margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .section {
@@ -96,7 +92,6 @@
       font-size: 13px;
       color: var(--navy-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     input[type="text"], input[type="number"], select {
@@ -107,14 +102,6 @@
       border-radius: 6px;
       color: var(--text-dark);
       font-size: 15px;
-      transition: 0.3s;
-    }
-
-    input[type="text"]:focus, input[type="number"]:focus, select:focus {
-      outline: none;
-      border-color: var(--navy-primary);
-      background-color: #ffffff;
-      box-shadow: 0 0 5px rgba(11, 19, 43, 0.2);
     }
 
     input.calculated-field {
@@ -161,15 +148,7 @@
       cursor: pointer;
       width: 100%;
       margin-top: 20px;
-      transition: 0.3s;
       text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .btn-main:hover {
-      background: linear-gradient(135deg, var(--navy-secondary) 0%, var(--navy-primary) 100%);
-      color: var(--accent-gold);
-      box-shadow: 0 4px 12px rgba(11, 19, 43, 0.25);
     }
 
     .btn-pdf {
@@ -181,8 +160,7 @@
       font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 15px;
-      transition: 0.3s;
+      margin-top: 20px;
       width: 100%;
       text-transform: uppercase;
     }
@@ -206,7 +184,6 @@
       color: white;
       margin-top: 15px;
       font-size: 13px;
-      letter-spacing: 0.5px;
     }
     .elegivel { background-color: #10b981; }
     .nao-elegivel { background-color: #ef4444; }
@@ -217,7 +194,6 @@
       margin-top: 20px;
       background: #ffffff;
       border-radius: 6px;
-      overflow: hidden;
       border: 1px solid var(--border-color);
     }
 
@@ -233,24 +209,6 @@
       color: #ffffff;
       text-transform: uppercase;
       font-size: 12px;
-      letter-spacing: 0.5px;
-    }
-
-    .pdf-meta {
-      font-size: 12px;
-      color: var(--navy-secondary);
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--accent-gold);
-      padding-bottom: 8px;
-    }
-
-    /* --- ESTILO DE IMPRESSÃO / PDF FORMATO EXATO DO ANEXO --- */
-    .pdf-layout-print {
-      background: #ffffff !important;
-      font-family: Arial, sans-serif !important;
-      padding: 20px !important;
-      border: none !important;
-      box-shadow: none !important;
     }
 
     .pdf-header-exact {
@@ -312,7 +270,7 @@
 <div class="container">
   <h1>Análise Tributária & Simulador</h1>
 
-  <!-- 1. IMPORTAÇÃO DO PDF DA SITUAÇÃO FISCAL -->
+  <!-- 1. IMPORTAÇÃO DO PDF -->
   <div class="section">
     <h2>📄 1. Importar Situação Fiscal (PDF da Receita)</h2>
     <div class="dropzone" onclick="document.getElementById('pdfInput').click()">
@@ -340,50 +298,50 @@
     <div class="grid" style="margin-top: 10px;">
       <div>
         <label>Débito PIS/COFINS Extraído (R$):</label>
-        <input type="text" id="debitoPisCofins" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
+        <input type="text" id="debitoPisCofins" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
       </div>
       <div>
         <label>Débito IRPJ/CSLL Extraído (R$):</label>
-        <input type="text" id="debitoIrpjCsll" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
+        <input type="text" id="debitoIrpjCsll" value="0,00" oninput="mudarFormatoMoeda(this); atualizarTotalDevedor();">
       </div>
     </div>
   </div>
 
-  <!-- 2. PIS E COFINS SEPARADOS POR MÊS -->
+  <!-- 2. PIS E COFINS DOS ÚLTIMOS MESES -->
   <div class="section">
     <h2>📊 2. PIS e COFINS dos Últimos 3 Meses</h2>
     <div class="grid-3">
       <div class="mes-block">
         <h3>Mês 1</h3>
         <label>PIS (R$):</label>
-        <input type="text" id="pis1" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="pis1" value="0,00" oninput="mudarFormatoMoeda(this)">
         <label>COFINS (R$):</label>
-        <input type="text" id="cofins1" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="cofins1" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
       <div class="mes-block">
         <h3>Mês 2</h3>
         <label>PIS (R$):</label>
-        <input type="text" id="pis2" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="pis2" value="0,00" oninput="mudarFormatoMoeda(this)">
         <label>COFINS (R$):</label>
-        <input type="text" id="cofins2" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="cofins2" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
       <div class="mes-block">
         <h3>Mês 3</h3>
         <label>PIS (R$):</label>
-        <input type="text" id="pis3" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="pis3" value="0,00" oninput="mudarFormatoMoeda(this)">
         <label>COFINS (R$):</label>
-        <input type="text" id="cofins3" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
+        <input type="text" id="cofins3" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
     </div>
   </div>
 
-  <!-- 3. PARÂMETROS DA SIMULAÇÃO CRÉDITO VALE -->
+  <!-- 3. PARÂMETROS -->
   <div class="section">
     <h2>⚙️ 3. Parâmetros da Simulação de Crédito Vale</h2>
     <div class="grid">
       <div>
         <label>Valor Base para Compensação (R$):</label>
-        <input type="text" id="valorCompensar" class="calculated-field currency-input" value="0,00">
+        <input type="text" id="valorCompensar" class="calculated-field" value="0,00">
       </div>
       <div>
         <label>Compensação da Guia:</label>
@@ -407,7 +365,7 @@
     <button class="btn-main" onclick="gerarRelatorioESimulacao()">Calcular & Gerar Relatório</button>
   </div>
 
-  <!-- 4. RELATÓRIO FINAL VISÍVEL -->
+  <!-- 4. RELATÓRIO FINAL -->
   <div id="resultadoArea" style="display:none;">
     <div id="conteudoParaExportar" class="section">
       
@@ -418,18 +376,18 @@
         <div class="doc-title">RELATÓRIO TÉCNICO DE ELEGIBILIDADE</div>
         <div class="doc-subtitle">Crédito Vale — Compensação PIS/COFINS e IRPJ/CSLL</div>
         <div style="font-size: 11px; color: #718096; margin-top: 4px;">
-          Emitido em <span id="resDataEmissao"></span>
+          Emitido em <span id="resDataEmissao">-</span>
         </div>
       </div>
 
       <h2>1. Dados Cadastrais e Elegibilidade</h2>
-      <p><strong>Empresa:</strong> <span id="resNome"></span></p>
-      <p><strong>Regime Tributário:</strong> <span id="resRegime"></span></p>
-      <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC"></span></p>
-      <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC"></span></p>
-      <p><strong>Média Mensal PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC"></span></p>
+      <p><strong>Empresa:</strong> <span id="resNome">-</span></p>
+      <p><strong>Regime Tributário:</strong> <span id="resRegime">-</span></p>
+      <p><strong>Débito PIS/COFINS na Receita:</strong> R$ <span id="resDebitoPC">0,00</span></p>
+      <p><strong>Débito IRPJ/CSLL na Receita:</strong> R$ <span id="resDebitoIC">0,00</span></p>
+      <p><strong>Média Mensal PIS/COFINS (3 Meses):</strong> R$ <span id="resMediaPC">0,00</span></p>
 
-      <div id="badgeElegibilidade" class="badge"></div>
+      <div id="badgeElegibilidade" class="badge elegivel">ELEGÍVEL PARA O CRÉDITO VALE</div>
 
       <h2 style="margin-top: 25px;">2. Simulação da Compra do Crédito Vale</h2>
       <table>
@@ -440,15 +398,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Valor Base Selecionado para Compensação</td><td style="text-align: right;" id="simGuiaOriginal"></td></tr>
-          <tr><td>Valor Compensado com Crédito Vale</td><td style="text-align: right;" id="simValorCompensado"></td></tr>
-          <tr><td>Valor Guia Residual (10%)</td><td style="text-align: right;" id="simGuiaResidual"></td></tr>
-          <tr><td>Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao"></td></tr>
-          <tr><td>Honorários</td><td style="text-align: right;" id="simHonorarios"></td></tr>
-          <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td style="text-align: right;" id="simCustoTotal"></td></tr>
-          <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td style="text-align: right;" id="simEfetivoPago"></td></tr>
-          <tr><td><strong>Economia Gerada (R$)</strong></td><td style="text-align: right;" id="simEconomiaR"></td></tr>
-          <tr><td><strong>Percentual de Economia Gerada</strong></td><td style="text-align: right;" id="simEconomiaPct"></td></tr>
+          <tr><td>Valor Base Selecionado para Compensação</td><td style="text-align: right;" id="simGuiaOriginal">0,00</td></tr>
+          <tr><td>Valor Compensado com Crédito Vale</td><td style="text-align: right;" id="simValorCompensado">0,00</td></tr>
+          <tr><td>Valor Guia Residual (10%)</td><td style="text-align: right;" id="simGuiaResidual">0,00</td></tr>
+          <tr><td>Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao">0,00</td></tr>
+          <tr><td>Honorários</td><td style="text-align: right;" id="simHonorarios">0,00</td></tr>
+          <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td style="text-align: right;" id="simCustoTotal">0,00</td></tr>
+          <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td style="text-align: right;" id="simEfetivoPago">0,00</td></tr>
+          <tr><td><strong>Economia Gerada (R$)</strong></td><td style="text-align: right;" id="simEconomiaR">0,00</td></tr>
+          <tr><td><strong>Percentual de Economia Gerada</strong></td><td style="text-align: right;" id="simEconomiaPct">0,00%</td></tr>
         </tbody>
       </table>
 
@@ -467,12 +425,15 @@
 </div>
 
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+  // Inicialização segura do PDF.js Worker
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+  }
 
   function parseMoeda(str) {
     if (!str) return 0;
     if (typeof str === 'number') return str;
-    const limpo = str.replace(/[^\d]/g, '');
+    const limpo = str.toString().replace(/[^\d]/g, '');
     return parseFloat(limpo) / 100 || 0;
   }
 
@@ -487,16 +448,13 @@
 
   function setMoedaInput(elementId, valorNumerico) {
     const el = document.getElementById(elementId);
-    if (el) {
-      el.value = fmt(valorNumerico);
-    }
+    if (el) el.value = fmt(valorNumerico);
   }
 
   function atualizarTotalDevedor() {
     const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
     const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
-    const total = debitoPC + debitoIC;
-    setMoedaInput('valorCompensar', total);
+    setMoedaInput('valorCompensar', debitoPC + debitoIC);
   }
 
   async function processarPDF(file) {
@@ -547,18 +505,17 @@
 
       setMoedaInput('debitoPisCofins', debitoPC);
       setMoedaInput('debitoIrpjCsll', debitoIC);
-      
       atualizarTotalDevedor();
 
       status.innerText = `✅ PDF importado! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
     } catch (err) {
       console.error(err);
-      status.innerText = "❌ Erro ao ler o PDF. Verifique se o arquivo é um PDF válido da Receita Federal.";
+      status.innerText = "❌ Erro ao ler o PDF. Verifique o arquivo.";
     }
   }
 
   function gerarRelatorioESimulacao() {
-    const nome = document.getElementById('nomeEmpresa').value || 'Não informado';
+    const nome = document.getElementById('nomeEmpresa').value || 'Empresa';
     const regime = document.getElementById('regime').value;
     const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
     const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
@@ -583,9 +540,7 @@
     const elegivel = (totalDevedorGeral > 10000) || (mediaPC > 10000);
 
     const agora = new Date();
-    const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    document.getElementById('resDataEmissao').innerText = dataFormatada;
+    document.getElementById('resDataEmissao').innerText = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('resNome').innerText = nome;
     document.getElementById('resRegime').innerText = regime;
     document.getElementById('resDebitoPC').innerText = fmt(debitoPC);
@@ -636,30 +591,21 @@
     const btn = document.getElementById('btnExportarPdf');
     const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
 
-    // Esconde o botão durante a captura
-    btn.style.display = 'none';
-    elemento.classList.add('pdf-layout-print');
+    if (btn) btn.style.display = 'none';
 
     const opt = {
-      margin:       [10, 10, 10, 10],
+      margin:       [8, 8, 8, 8],
       filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { 
-        scale: 2, 
-        useCORS: true,
-        logging: false
-      },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(elemento).save().then(() => {
-      // Reestaura a visualização original do site
-      elemento.classList.remove('pdf-layout-print');
-      btn.style.display = 'block';
+      if (btn) btn.style.display = 'block';
     }).catch(err => {
       console.error(err);
-      elemento.classList.remove('pdf-layout-print');
-      btn.style.display = 'block';
+      if (btn) btn.style.display = 'block';
     });
   }
 </script>
