@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     :root {
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
@@ -251,6 +253,182 @@
     @media (max-width: 600px) {
       .grid, .grid-3 { grid-template-columns: 1fr; }
     }
+
+    /* --- ESTILOS DO MODELO DE RELATÓRIO TÉCNICO EXCLUSIVO DO PDF --- */
+    #relatorioPdfInvisivel {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 800px;
+      background: #ffffff;
+      font-family: 'Inter', sans-serif;
+      color: #334155;
+      padding: 20px;
+    }
+
+    .pdf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .pdf-logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 1px;
+    }
+
+    .pdf-logo span { color: #b45309; }
+
+    .pdf-meta-header {
+      text-align: right;
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    .pdf-title-banner {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pdf-status-badge {
+      background-color: #22c55e;
+      color: #ffffff;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .pdf-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pdf-kpi-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-top: 3px solid #0f172a;
+      padding: 12px;
+      border-radius: 4px;
+    }
+
+    .pdf-kpi-card.highlight {
+      border-top-color: #15803d;
+      background: #f0fdf4;
+    }
+
+    .pdf-kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .pdf-kpi-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .pdf-kpi-card.highlight .pdf-kpi-value { color: #15803d; }
+
+    .pdf-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .pdf-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+
+    .pdf-info-item {
+      background: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .pdf-info-item strong {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+
+    .pdf-tech-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .pdf-tech-table th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .pdf-tech-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .pdf-tech-table tr:nth-child(even) { background-color: #f8fafc; }
+
+    .pdf-tech-table .row-highlight {
+      background-color: #f0fdf4;
+      font-weight: 700;
+      color: #15803d;
+    }
+
+    .pdf-tech-table .row-total {
+      font-weight: 700;
+      border-top: 2px solid #0f172a;
+      background-color: #f1f5f9;
+    }
+
+    .pdf-footer {
+      margin-top: 30px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #64748b;
+    }
   </style>
 </head>
 <body>
@@ -299,7 +477,6 @@
   <div class="section">
     <h2>📊 2. PIS e COFINS dos Últimos 3 Meses</h2>
     <div class="grid-3">
-      <!-- Mês 1 -->
       <div class="mes-block">
         <h3>Mês 1</h3>
         <label>PIS (R$):</label>
@@ -307,7 +484,6 @@
         <label>COFINS (R$):</label>
         <input type="text" id="cofins1" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
-      <!-- Mês 2 -->
       <div class="mes-block">
         <h3>Mês 2</h3>
         <label>PIS (R$):</label>
@@ -315,7 +491,6 @@
         <label>COFINS (R$):</label>
         <input type="text" id="cofins2" class="currency-input" value="0,00" oninput="mudarFormatoMoeda(this)">
       </div>
-      <!-- Mês 3 -->
       <div class="mes-block">
         <h3>Mês 3</h3>
         <label>PIS (R$):</label>
@@ -356,7 +531,7 @@
     <button class="btn-main" onclick="gerarRelatorioESimulacao()">Calcular & Gerar Relatório</button>
   </div>
 
-  <!-- 4. RESULTADO E RELATÓRIO (ÁREA CAPTURADA PELO PDF) -->
+  <!-- 4. RESULTADO NA TELA (LAYOUT ORIGINAL MANTIDO) -->
   <div id="resultadoArea" style="display:none;">
     <div id="relatorioImpressao" class="section">
       <div class="pdf-meta">
@@ -391,15 +566,118 @@
       </table>
     </div>
 
-    <!-- Botão de Download PDF -->
     <button class="btn-pdf" onclick="exportarPDF()">📥 Baixar Relatório em PDF</button>
+  </div>
+</div>
+
+<!-- ESTRUTURA EXCLUSIVA PARA MONTAGEM DO PDF TÉCNICO PSP GROUP -->
+<div id="relatorioPdfInvisivel">
+  <div class="pdf-header">
+    <div class="pdf-logo">PSP <span>GROUP</span></div>
+    <div class="pdf-meta-header">
+      <strong>PARECER TÉCNICO DE COMPENSAÇÃO</strong><br>
+      Protocolo: #PSP-2026-092<br>
+      Emissão: <span id="pdfDataEmissao"></span>
+    </div>
+  </div>
+
+  <div class="pdf-title-banner">
+    <span>Relatório de Elegibilidade Tributária</span>
+    <span class="pdf-status-badge" id="pdfBadgeStatus">ELEGÍVEL</span>
+  </div>
+
+  <div class="pdf-kpi-grid">
+    <div class="pdf-kpi-card">
+      <div class="pdf-kpi-label">Base para Compensação</div>
+      <div class="pdf-kpi-value" id="pdfKpiBase">R$ 0,00</div>
+    </div>
+    <div class="pdf-kpi-card">
+      <div class="pdf-kpi-label">Custo Efetivo Final</div>
+      <div class="pdf-kpi-value" id="pdfKpiCusto">R$ 0,00</div>
+    </div>
+    <div class="pdf-kpi-card highlight">
+      <div class="pdf-kpi-label">Economia Garantida</div>
+      <div class="pdf-kpi-value" id="pdfKpiEconomia">R$ 0,00</div>
+    </div>
+  </div>
+
+  <div class="pdf-section-title">1. Identificação do Contribuinte</div>
+  <div class="pdf-info-grid">
+    <div class="pdf-info-item">
+      <strong>Razão Social</strong>
+      <span id="pdfNome"></span>
+    </div>
+    <div class="pdf-info-item">
+      <strong>Regime Tributário</strong>
+      <span id="pdfRegime"></span>
+    </div>
+    <div class="pdf-info-item">
+      <strong>Débito PIS/COFINS (Receita Federal)</strong>
+      R$ <span id="pdfDebitoPC"></span>
+    </div>
+    <div class="pdf-info-item">
+      <strong>Débito IRPJ/CSLL (Receita Federal)</strong>
+      R$ <span id="pdfDebitoIC"></span>
+    </div>
+  </div>
+
+  <div class="pdf-section-title">2. Demonstrativo da Operação com Crédito Vale</div>
+  <table class="pdf-tech-table">
+    <thead>
+      <tr>
+        <th>Etapa / Discriminativo da Operação</th>
+        <th style="text-align: right;">Valor (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Valor Base Selecionado para Compensação</td>
+        <td style="text-align: right;" id="pdfSimGuiaOriginal"></td>
+      </tr>
+      <tr>
+        <td>Valor Compensado com Crédito Vale</td>
+        <td style="text-align: right;" id="pdfSimValorCompensado"></td>
+      </tr>
+      <tr>
+        <td>Valor Guia Residual</td>
+        <td style="text-align: right;" id="pdfSimGuiaResidual"></td>
+      </tr>
+      <tr>
+        <td>Custo de Aquisição do Crédito</td>
+        <td style="text-align: right;" id="pdfSimCustoAquisicao"></td>
+      </tr>
+      <tr>
+        <td>Honorários Operacionais</td>
+        <td style="text-align: right;" id="pdfSimHonorarios"></td>
+      </tr>
+      <tr class="pdf-row-total">
+        <td>Custo Total da Operação (Aquisição + Honorários)</td>
+        <td style="text-align: right;" id="pdfSimCustoTotal"></td>
+      </tr>
+      <tr class="pdf-row-total">
+        <td>Desembolso Efetivo Pago pelo Cliente</td>
+        <td style="text-align: right;" id="pdfSimEfetivoPago"></td>
+      </tr>
+      <tr class="row-highlight">
+        <td><strong>Economia Financeira Direta (R$)</strong></td>
+        <td style="text-align: right;"><strong id="pdfSimEconomiaR"></strong></td>
+      </tr>
+      <tr class="row-highlight">
+        <td><strong>Percentual Final de Economia (%)</strong></td>
+        <td style="text-align: right;"><strong id="pdfSimEconomiaPct"></strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pdf-footer">
+    <div>PSP Group - Consultoria Tributária & Estratégia Financeira</div>
+    <div>Documento de uso estritamente confidencial</div>
   </div>
 </div>
 
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-  // --- FORMATAÇÃO MONETÁRIA BRASILEIRA EM TEMPO REAL ---
   function parseMoeda(str) {
     if (!str) return 0;
     if (typeof str === 'number') return str;
@@ -423,7 +701,6 @@
     }
   }
 
-  // --- ATUALIZAÇÃO AUTOMÁTICA DOS TOTAIS ---
   function atualizarTotalDevedor() {
     const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
     const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
@@ -431,7 +708,6 @@
     setMoedaInput('valorCompensar', total);
   }
 
-  // --- LEITURA DO PDF DA SITUAÇÃO FISCAL ---
   async function processarPDF(file) {
     if (!file) return;
     const status = document.getElementById('pdfStatus');
@@ -449,13 +725,11 @@
         fullText += pageText + "\n";
       }
 
-      // 1. Extração da Razão Social
       const cnpjMatch = fullText.match(/CNPJ:\s*[\d.\/\-]+\s*-\s*([^\n\_\r]+)/i);
       if (cnpjMatch && cnpjMatch[1]) {
         document.getElementById('nomeEmpresa').value = cnpjMatch[1].trim();
       }
 
-      // 2. Leitura Específica das Colunas por Tributo
       let debitoPC = 0;
       let debitoIC = 0;
 
@@ -492,14 +766,12 @@
     }
   }
 
-  // --- LÓGICA DE ELEGIBILIDADE E SIMULAÇÃO ---
   function gerarRelatorioESimulacao() {
     const nome = document.getElementById('nomeEmpresa').value || 'Não informado';
     const regime = document.getElementById('regime').value;
     const debitoPC = parseMoeda(document.getElementById('debitoPisCofins').value);
     const debitoIC = parseMoeda(document.getElementById('debitoIrpjCsll').value);
 
-    // Mês 1, 2 e 3
     const m1 = parseMoeda(document.getElementById('pis1').value) + parseMoeda(document.getElementById('cofins1').value);
     const m2 = parseMoeda(document.getElementById('pis2').value) + parseMoeda(document.getElementById('cofins2').value);
     const m3 = parseMoeda(document.getElementById('pis3').value) + parseMoeda(document.getElementById('cofins3').value);
@@ -510,7 +782,6 @@
     let baseParaCompensacao = parseMoeda(document.getElementById('valorCompensar').value);
     let notaBaseText = "";
 
-    // Lógica quando NÃO HÁ saldo devedor na Receita Federal
     if (totalDevedorGeral <= 0) {
       if (mediaPC > 10000) {
         baseParaCompensacao = mediaPC;
@@ -522,14 +793,12 @@
       setMoedaInput('valorCompensar', baseParaCompensacao);
     }
 
-    // Regra de Elegibilidade Geral
     const elegivel = (totalDevedorGeral > 10000) || (mediaPC > 10000);
 
-    // Data de Emissão Atual
     const agora = new Date();
     const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    // Preencher Relatório
+    // Preenche Tela Original
     document.getElementById('resDataEmissao').innerText = dataFormatada;
     document.getElementById('resNome').innerText = nome;
     document.getElementById('resRegime').innerText = regime;
@@ -547,7 +816,7 @@
       badge.className = "badge nao-elegivel";
     }
 
-    // --- CÁLCULOS DA SIMULAÇÃO ---
+    // Cálculos
     const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
     const pctAquisicao = parseFloat(document.getElementById('pctAquisicao').value) / 100;
     const pctHonorarios = parseFloat(document.getElementById('pctHonorarios').value) / 100;
@@ -563,7 +832,7 @@
     const economiaR$ = baseParaCompensacao - valorEfetivoPago;
     const economiaPct = baseParaCompensacao > 0 ? (economiaR$ / baseParaCompensacao) * 100 : 0;
 
-    // Preencher Tabela da Simulação
+    // Preenche Tabela na Tela
     document.getElementById('simGuiaOriginal').innerText = fmt(baseParaCompensacao);
     document.getElementById('simValorCompensado').innerText = fmt(valorCompensado);
     document.getElementById('simGuiaResidual').innerText = fmt(guiaResidual);
@@ -574,18 +843,39 @@
     document.getElementById('simEconomiaR').innerText = fmt(economiaR$);
     document.getElementById('simEconomiaPct').innerText = economiaPct.toFixed(2) + '%';
 
+    // Preenche Modelo do PDF Técnico Oculto
+    document.getElementById('pdfDataEmissao').innerText = dataFormatada;
+    document.getElementById('pdfBadgeStatus').innerText = elegivel ? "ELEGÍVEL" : "NÃO ELEGÍVEL";
+    document.getElementById('pdfBadgeStatus').style.backgroundColor = elegivel ? "#22c55e" : "#ef4444";
+    document.getElementById('pdfKpiBase').innerText = "R$ " + fmt(baseParaCompensacao);
+    document.getElementById('pdfKpiCusto').innerText = "R$ " + fmt(valorEfetivoPago);
+    document.getElementById('pdfKpiEconomia').innerText = "R$ " + fmt(economiaR$) + ` (${economiaPct.toFixed(2)}%)`;
+
+    document.getElementById('pdfNome').innerText = nome;
+    document.getElementById('pdfRegime').innerText = regime;
+    document.getElementById('pdfDebitoPC').innerText = fmt(debitoPC);
+    document.getElementById('pdfDebitoIC').innerText = fmt(debitoIC);
+
+    document.getElementById('pdfSimGuiaOriginal').innerText = fmt(baseParaCompensacao);
+    document.getElementById('pdfSimValorCompensado').innerText = fmt(valorCompensado);
+    document.getElementById('pdfSimGuiaResidual').innerText = fmt(guiaResidual);
+    document.getElementById('pdfSimCustoAquisicao').innerText = fmt(custoAquisicao);
+    document.getElementById('pdfSimHonorarios').innerText = fmt(honorarios);
+    document.getElementById('pdfSimCustoTotal').innerText = "R$ " + fmt(custoTotal);
+    document.getElementById('pdfSimEfetivoPago').innerText = "R$ " + fmt(valorEfetivoPago);
+    document.getElementById('pdfSimEconomiaR').innerText = "R$ " + fmt(economiaR$);
+    document.getElementById('pdfSimEconomiaPct').innerText = economiaPct.toFixed(2) + '%';
+
     document.getElementById('resultadoArea').style.display = 'block';
   }
 
-  // --- FUNÇÃO PARA EXPORTAR PDF CORRIGIDA ---
   function exportarPDF() {
-    const elemento = document.getElementById('relatorioImpressao');
+    const elemento = document.getElementById('relatorioPdfInvisivel');
     const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
 
-    // Opções de configuração do PDF
     const opt = {
       margin:       [10, 10, 10, 10],
-      filename:     `Relatorio_Credito_Vale_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+      filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
         scale: 2, 
@@ -596,7 +886,6 @@
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Processamento do PDF garantindo visibilidade
     html2pdf().set(opt).from(elemento).save();
   }
 </script>
