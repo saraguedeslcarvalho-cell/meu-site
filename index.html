@@ -586,28 +586,51 @@
     document.getElementById('resultadoArea').style.display = 'block';
   }
 
-  function exportarPDF() {
-    const elemento = document.getElementById('conteudoParaExportar');
-    const btn = document.getElementById('btnExportarPdf');
-    const nomeEmpresa = document.getElementById('nomeEmpresa').value || 'Empresa';
+function exportarPDF() {
+  const elemento = document.getElementById('conteudoParaExportar');
+  const btn = document.getElementById('btnExportarPdf');
+  const nomeEmpresa = document.getElementById('nomeEmpresa')?.value || 'Cliente';
 
-    if (btn) btn.style.display = 'none';
-
-    const opt = {
-      margin:       [8, 8, 8, 8],
-      filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(elemento).save().then(() => {
-      if (btn) btn.style.display = 'block';
-    }).catch(err => {
-      console.error(err);
-      if (btn) btn.style.display = 'block';
-    });
+  if (!elemento) {
+    alert('Erro: Conteúdo do relatório não encontrado na tela.');
+    return;
   }
+
+  // 1. Oculta o botão de download
+  if (btn) btn.style.display = 'none';
+
+  // 2. Aguarda a repintura do navegador para não gerar o PDF em branco
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const opt = {
+        margin:       [8, 8, 8, 8],
+        filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false,
+          scrollY: 0,
+          scrollX: 0
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      // 3. Executa a conversão para PDF
+      html2pdf()
+        .set(opt)
+        .from(elemento)
+        .save()
+        .then(() => {
+          if (btn) btn.style.display = 'block';
+        })
+        .catch(err => {
+          console.error('Erro na geração do PDF:', err);
+          if (btn) btn.style.display = 'block';
+        });
+    }, 150);
+  });
+}
 </script>
 
 </body>
