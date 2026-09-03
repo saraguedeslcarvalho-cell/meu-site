@@ -390,8 +390,8 @@
             <tr><td>Valor Base Selecionado para Compensação</td><td style="text-align: right;" id="simGuiaOriginal">0,00</td></tr>
             <tr><td>Valor Compensado com Crédito Vale</td><td style="text-align: right;" id="simValorCompensado">0,00</td></tr>
             <tr><td>Valor Guia Residual (10%)</td><td style="text-align: right;" id="simGuiaResidual">0,00</td></tr>
-            <tr><td>Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao">0,00</td></tr>
-            <tr><td>Honorários</td><td style="text-align: right;" id="simHonorarios">0,00</td></tr>
+            <tr><td id="lblCustoAquisicao">Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao">0,00</td></tr>
+            <tr><td id="lblHonorarios">Honorários</td><td style="text-align: right;" id="simHonorarios">0,00</td></tr>
             <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td style="text-align: right;" id="simCustoTotal">0,00</td></tr>
             <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td style="text-align: right;" id="simEfetivoPago">0,00</td></tr>
             <tr><td><strong>Economia Gerada (R$)</strong></td><td style="text-align: right;" id="simEconomiaR">0,00</td></tr>
@@ -551,8 +551,11 @@
 
     // Cálculos da simulação
     const pctCompensacao = parseFloat(document.getElementById('percentualCompensacao').value);
-    const pctAquisicao = parseFloat(document.getElementById('pctAquisicao').value) / 100;
-    const pctHonorarios = parseFloat(document.getElementById('pctHonorarios').value) / 100;
+    const pctAquisicaoInput = document.getElementById('pctAquisicao').value;
+    const pctHonorariosInput = document.getElementById('pctHonorarios').value;
+
+    const pctAquisicao = parseFloat(pctAquisicaoInput) / 100;
+    const pctHonorarios = parseFloat(pctHonorariosInput) / 100;
 
     const valorCompensado = baseParaCompensacao * (pctCompensacao / 100);
     const guiaResidual = baseParaCompensacao - valorCompensado;
@@ -565,7 +568,11 @@
     const economiaR$ = baseParaCompensacao - valorEfetivoPago;
     const economiaPct = baseParaCompensacao > 0 ? (economiaR$ / baseParaCompensacao) * 100 : 0;
 
-    // Preenche a tabela
+    // Preenche os rótulos dinâmicos com os percentuais
+    document.getElementById('lblCustoAquisicao').innerText = `Custo de Aquisição do Crédito (${pctAquisicaoInput}%)`;
+    document.getElementById('lblHonorarios').innerText = `Honorários (${pctHonorariosInput}%)`;
+
+    // Preenche os valores na tabela
     document.getElementById('simGuiaOriginal').innerText = fmt(baseParaCompensacao);
     document.getElementById('simValorCompensado').innerText = fmt(valorCompensado);
     document.getElementById('simGuiaResidual').innerText = fmt(guiaResidual);
