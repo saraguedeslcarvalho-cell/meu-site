@@ -222,23 +222,12 @@
       color: #0b1e36;
     }
 
-    .pdf-header-exact .logo-sub {
-      font-size: 12px;
-      color: #4a5568;
-    }
-
     .pdf-header-exact .doc-title {
       font-size: 15px;
       font-weight: bold;
       color: #0b1e36;
       margin-top: 12px;
       text-transform: uppercase;
-    }
-
-    .pdf-header-exact .doc-subtitle {
-      font-size: 12px;
-      color: #2b6cb0;
-      font-weight: bold;
     }
 
     .pdf-legal-note {
@@ -387,26 +376,29 @@
 
       <div id="badgeElegibilidade" class="badge elegivel">ELEGÍVEL PARA O CRÉDITO VALE</div>
 
-      <h2 style="margin-top: 25px;">2. Simulação da Compra do Crédito Vale</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ITEM</th>
-            <th style="text-align: right;">VALOR (R$)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Valor Base Selecionado para Compensação</td><td style="text-align: right;" id="simGuiaOriginal">0,00</td></tr>
-          <tr><td>Valor Compensado com Crédito Vale</td><td style="text-align: right;" id="simValorCompensado">0,00</td></tr>
-          <tr><td>Valor Guia Residual (10%)</td><td style="text-align: right;" id="simGuiaResidual">0,00</td></tr>
-          <tr><td>Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao">0,00</td></tr>
-          <tr><td>Honorários</td><td style="text-align: right;" id="simHonorarios">0,00</td></tr>
-          <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td style="text-align: right;" id="simCustoTotal">0,00</td></tr>
-          <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td style="text-align: right;" id="simEfetivoPago">0,00</td></tr>
-          <tr><td><strong>Economia Gerada (R$)</strong></td><td style="text-align: right;" id="simEconomiaR">0,00</td></tr>
-          <tr><td><strong>Percentual de Economia Gerada</strong></td><td style="text-align: right;" id="simEconomiaPct">0,00%</td></tr>
-        </tbody>
-      </table>
+      <!-- SEÇÃO 2: SIMULAÇÃO (EXIBIDA APENAS SE FOR ELEGÍVEL) -->
+      <div id="secaoSimulacaoCompra">
+        <h2 style="margin-top: 25px;">2. Simulação da Compra do Crédito Vale</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th style="text-align: right;">VALOR (R$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Valor Base Selecionado para Compensação</td><td style="text-align: right;" id="simGuiaOriginal">0,00</td></tr>
+            <tr><td>Valor Compensado com Crédito Vale</td><td style="text-align: right;" id="simValorCompensado">0,00</td></tr>
+            <tr><td>Valor Guia Residual (10%)</td><td style="text-align: right;" id="simGuiaResidual">0,00</td></tr>
+            <tr><td>Custo de Aquisição do Crédito</td><td style="text-align: right;" id="simCustoAquisicao">0,00</td></tr>
+            <tr><td>Honorários</td><td style="text-align: right;" id="simHonorarios">0,00</td></tr>
+            <tr><td><strong>Custo Total (Aquisição + Honorários)</strong></td><td style="text-align: right;" id="simCustoTotal">0,00</td></tr>
+            <tr><td><strong>Valor Efetivo Pago pelo Cliente</strong></td><td style="text-align: right;" id="simEfetivoPago">0,00</td></tr>
+            <tr><td><strong>Economia Gerada (R$)</strong></td><td style="text-align: right;" id="simEconomiaR">0,00</td></tr>
+            <tr><td><strong>Percentual de Economia Gerada</strong></td><td style="text-align: right;" id="simEconomiaPct">0,00%</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="pdf-legal-note">
         Este relatório técnico foi elaborado com base nos dados cadastrais e fiscais informados, refletindo a simulação de compensação de créditos vigente na data de emissão. Os valores apresentados não constituem garantia de resultado e estão sujeitos à validação documental.
@@ -423,7 +415,6 @@
 </div>
 
 <script>
-  // Inicialização segura do PDF.js Worker
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
   }
@@ -546,12 +537,16 @@
     document.getElementById('resMediaPC').innerText = fmt(mediaPC);
 
     const badge = document.getElementById('badgeElegibilidade');
+    const secaoSimulacao = document.getElementById('secaoSimulacaoCompra');
+
     if (elegivel) {
       badge.innerText = "ELEGÍVEL PARA O CRÉDITO VALE";
       badge.className = "badge elegivel";
+      if (secaoSimulacao) secaoSimulacao.style.display = 'block';
     } else {
       badge.innerText = "NÃO ELEGÍVEL PARA O CRÉDITO VALE";
       badge.className = "badge nao-elegivel";
+      if (secaoSimulacao) secaoSimulacao.style.display = 'none';
     }
 
     // Cálculos da simulação
@@ -584,51 +579,48 @@
     document.getElementById('resultadoArea').style.display = 'block';
   }
 
-function exportarPDF() {
-  const elemento = document.getElementById('conteudoParaExportar');
-  const btn = document.getElementById('btnExportarPdf');
-  const nomeEmpresa = document.getElementById('nomeEmpresa')?.value || 'Cliente';
+  function exportarPDF() {
+    const elemento = document.getElementById('conteudoParaExportar');
+    const btn = document.getElementById('btnExportarPdf');
+    const nomeEmpresa = document.getElementById('nomeEmpresa')?.value || 'Cliente';
 
-  if (!elemento) {
-    alert('Erro: Conteúdo do relatório não encontrado na tela.');
-    return;
+    if (!elemento) {
+      alert('Erro: Conteúdo do relatório não encontrado na tela.');
+      return;
+    }
+
+    if (btn) btn.style.display = 'none';
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const opt = {
+          margin:       [8, 8, 8, 8],
+          filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            scrollY: 0,
+            scrollX: 0
+          },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf()
+          .set(opt)
+          .from(elemento)
+          .save()
+          .then(() => {
+            if (btn) btn.style.display = 'block';
+          })
+          .catch(err => {
+            console.error('Erro na geração do PDF:', err);
+            if (btn) btn.style.display = 'block';
+          });
+      }, 150);
+    });
   }
-
-  // 1. Oculta o botão de download
-  if (btn) btn.style.display = 'none';
-
-  // 2. Aguarda a repintura do navegador para não gerar o PDF em branco
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      const opt = {
-        margin:       [8, 8, 8, 8],
-        filename:     `Relatorio_PSP_Group_${nomeEmpresa.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-          scale: 2, 
-          useCORS: true, 
-          logging: false,
-          scrollY: 0,
-          scrollX: 0
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      // 3. Executa a conversão para PDF
-      html2pdf()
-        .set(opt)
-        .from(elemento)
-        .save()
-        .then(() => {
-          if (btn) btn.style.display = 'block';
-        })
-        .catch(err => {
-          console.error('Erro na geração do PDF:', err);
-          if (btn) btn.style.display = 'block';
-        });
-    }, 150);
-  });
-}
 </script>
 
 </body>
