@@ -463,6 +463,7 @@
         fullText += pageText + "\n";
       }
 
+      // Extrai Razão Social
       const cnpjMatch = fullText.match(/CNPJ:\s*[\d.\/\-]+\s*-\s*([^\n\_\r]+)/i);
       if (cnpjMatch && cnpjMatch[1]) {
         document.getElementById('nomeEmpresa').value = cnpjMatch[1].trim();
@@ -471,13 +472,14 @@
       let debitoPC = 0;
       let debitoIC = 0;
 
-      const regexLinhaTributo = /(8109-02\s*-\s*PIS|2172-01\s*-\s*COFINS|2089-01\s*-\s*IRPJ|2372-01\s*-\s*CSLL)[\s\S]*?(DEVEDOR|A ANALISAR)/gi;
+      // REGEX SUPORTA: PIS/COFINS (8109, 6912, 2172, 5856) E IRPJ/CSLL (2089, 2372) COM QUALQUER SUFIXO (-01, -02, ETC.)
+      const regexLinhaTributo = /((?:8109|6912|2172|5856|2089|2372)(?:-\d{2})?\s*-\s*(?:PIS|COFINS|IRPJ|CSLL)|(?:PIS|COFINS|IRPJ|CSLL))[\s\S]*?(DEVEDOR|A ANALISAR)/gi;
       const matches = fullText.matchAll(regexLinhaTributo);
 
       for (const match of matches) {
         const blocoTexto = match[0];
-        const isPC = blocoTexto.includes('PIS') || blocoTexto.includes('COFINS');
-        const isIC = blocoTexto.includes('IRPJ') || blocoTexto.includes('CSLL');
+        const isPC = /PIS|COFINS|8109|6912|2172|5856/i.test(blocoTexto);
+        const isIC = /IRPJ|CSLL|2089|2372/i.test(blocoTexto);
 
         const valoresEncontrados = blocoTexto.match(/[\d\.]{1,12}\,\d{2}/g);
 
@@ -487,7 +489,7 @@
 
           if (!isNaN(valNum)) {
             if (isPC) debitoPC += valNum;
-            if (isIC) debitoIC += valNum;
+            else if (isIC) debitoIC += valNum;
           }
         }
       }
@@ -496,7 +498,7 @@
       setMoedaInput('debitoIrpjCsll', debitoIC);
       atualizarTotalDevedor();
 
-      status.innerText = `✅ PDF importado! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
+      status.innerText = `✅ PDF importado com sucesso! PIS/COFINS: R$ ${fmt(debitoPC)} | IRPJ/CSLL: R$ ${fmt(debitoIC)}`;
     } catch (err) {
       console.error(err);
       status.innerText = "❌ Erro ao ler o PDF. Verifique o arquivo.";
